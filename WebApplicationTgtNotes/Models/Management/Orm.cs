@@ -1,11 +1,11 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
+using WebApplicationTgtNotes.Models;
 
 namespace TogetherNotes.Models
 {
     class Orm
     {
-        public static tgtnotesEntities db = new tgtnotesEntities();
+        public static TgtNotesEntities db = new TgtNotesEntities();
 
         public static string ErrorMessage(SqlException sqlException)
         {
