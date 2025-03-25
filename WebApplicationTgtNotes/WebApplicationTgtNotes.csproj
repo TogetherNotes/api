@@ -173,6 +173,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\activitiesController.cs" />
+    <Compile Include="Controllers\adminsController.cs" />
+    <Compile Include="Controllers\appsController.cs" />
+    <Compile Include="Controllers\artistsController.cs" />
+    <Compile Include="Controllers\chatsController.cs" />
+    <Compile Include="Controllers\contractsController.cs" />
+    <Compile Include="Controllers\filesController.cs" />
+    <Compile Include="Controllers\genresController.cs" />
+    <Compile Include="Controllers\incidencesController.cs" />
+    <Compile Include="Controllers\languagesController.cs" />
+    <Compile Include="Controllers\messagesController.cs" />
+    <Compile Include="Controllers\notificationsController.cs" />
+    <Compile Include="Controllers\ratingsController.cs" />
+    <Compile Include="Controllers\rolesController.cs" />
+    <Compile Include="Controllers\spacesController.cs" />
     <Compile Include="Models\activity.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
@@ -240,22 +255,6 @@
     <Compile Include="Models\languages.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Management\ActivityOrm.cs" />
-    <Compile Include="Models\Management\AdminOrm.cs" />
-    <Compile Include="Models\Management\AppOrm.cs" />
-    <Compile Include="Models\Management\ArtistsOrm.cs" />
-    <Compile Include="Models\Management\ChatsOrm.cs" />
-    <Compile Include="Models\Management\ContractsOrm.cs" />
-    <Compile Include="Models\Management\FilesOrm.cs" />
-    <Compile Include="Models\Management\GenresOrm.cs" />
-    <Compile Include="Models\Management\IncidencesOrm.cs" />
-    <Compile Include="Models\Management\LanguagesOrm.cs" />
-    <Compile Include="Models\Management\MessagesOrm.cs" />
-    <Compile Include="Models\Management\NotificationsOrm.cs" />
-    <Compile Include="Models\Management\Orm.cs" />
-    <Compile Include="Models\Management\RatingOrm.cs" />
-    <Compile Include="Models\Management\RolesOrm.cs" />
-    <Compile Include="Models\Management\SpacesOrm.cs" />
     <Compile Include="Models\messages.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>

@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="40f1cebb5ae146dd8f10772d0f32b0db" Name="Diagram1">
+      <Diagram DiagramId="40f1cebb5ae146dd8f10772d0f32b0db" Name="Diagram1" ZoomLevel="74">
         <EntityTypeShape EntityType="TgtNotesModel.activity" Width="1.5" PointX="5.25" PointY="21.625" IsExpanded="true" />
         <EntityTypeShape EntityType="TgtNotesModel.admin" Width="1.5" PointX="3" PointY="1.625" IsExpanded="true" />
         <EntityTypeShape EntityType="TgtNotesModel.app" Width="1.5" PointX="3" PointY="6.875" IsExpanded="true" />
