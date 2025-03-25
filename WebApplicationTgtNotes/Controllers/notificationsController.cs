@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/notifications
         public IQueryable<notifications> Getnotifications()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.notifications;
         }
 

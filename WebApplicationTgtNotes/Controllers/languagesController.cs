@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/languages
         public IQueryable<languages> Getlanguages()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.languages;
         }
 

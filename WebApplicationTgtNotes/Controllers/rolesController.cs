@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/roles
         public IQueryable<roles> Getroles()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.roles;
         }
 

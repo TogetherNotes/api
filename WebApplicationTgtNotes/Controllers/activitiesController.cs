@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/activities
         public IQueryable<activity> Getactivity()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.activity;
         }
 

@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/incidences
         public IQueryable<incidences> Getincidences()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.incidences;
         }
 

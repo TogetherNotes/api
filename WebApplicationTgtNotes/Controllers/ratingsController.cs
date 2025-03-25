@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/ratings
         public IQueryable<rating> Getrating()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.rating;
         }
 

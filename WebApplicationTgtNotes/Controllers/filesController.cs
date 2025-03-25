@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/files
         public IQueryable<files> Getfiles()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.files;
         }
 

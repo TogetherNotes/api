@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/chats
         public IQueryable<chats> Getchats()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.chats;
         }
 

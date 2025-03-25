@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/spaces
         public IQueryable<spaces> Getspaces()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.spaces;
         }
 

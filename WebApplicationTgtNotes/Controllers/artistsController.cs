@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/artists
         public IQueryable<artists> Getartists()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.artists;
         }
 

@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/contracts
         public IQueryable<contracts> Getcontracts()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.contracts;
         }
 

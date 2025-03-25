@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/admins
         public IQueryable<admin> Getadmin()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.admin;
         }
 

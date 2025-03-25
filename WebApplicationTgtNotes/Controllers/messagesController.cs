@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/messages
         public IQueryable<messages> Getmessages()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.messages;
         }
 

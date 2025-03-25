@@ -16,6 +16,7 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/genres
         public IQueryable<genres> Getgenres()
         {
+            db.Configuration.LazyLoadingEnabled = false;
             return db.genres;
         }
 
