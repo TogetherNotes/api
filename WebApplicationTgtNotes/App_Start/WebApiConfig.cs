@@ -17,6 +17,10 @@ namespace WebApplicationTgtNotes
                 defaults: new { id = RouteParameter.Optional }
             );
 
+            // Eliminar el formatter XML
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+
+            // I ja tenies això per evitar referències circulars
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling =
                 Newtonsoft.Json.ReferenceLoopHandling.Ignore;
         }
