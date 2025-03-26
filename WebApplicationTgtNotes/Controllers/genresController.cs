@@ -14,10 +14,16 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/genres
-        public IQueryable<genres> Getgenres()
+        public IQueryable<object> GetGenres()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.genres;
+
+            return db.genres
+                .Select(g => new
+                {
+                    g.id,
+                    g.name
+                });
         }
 
         // GET: api/genres/5
