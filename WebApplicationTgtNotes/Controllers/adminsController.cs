@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.admin;
         }
 
-        // GET: api/admins/5
+        // GET: api/admins/{id}
         [ResponseType(typeof(admin))]
         public async Task<IHttpActionResult> Getadmin(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             admin admin = await db.admin.FindAsync(id);
             if (admin == null)
             {

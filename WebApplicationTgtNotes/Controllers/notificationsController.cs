@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.notifications;
         }
 
-        // GET: api/notifications/5
+        // GET: api/notifications/{id}
         [ResponseType(typeof(notifications))]
         public async Task<IHttpActionResult> Getnotifications(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             notifications notifications = await db.notifications.FindAsync(id);
             if (notifications == null)
             {

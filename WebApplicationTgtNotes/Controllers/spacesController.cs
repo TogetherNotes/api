@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.spaces;
         }
 
-        // GET: api/spaces/5
+        // GET: api/spaces/{id}
         [ResponseType(typeof(spaces))]
         public async Task<IHttpActionResult> Getspaces(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             spaces spaces = await db.spaces.FindAsync(id);
             if (spaces == null)
             {

@@ -99,7 +99,7 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = genres.id }, genres);
         }
 
-        // DELETE: api/genres/5
+        // DELETE: api/genres/{id}
         [ResponseType(typeof(genres))]
         public async Task<IHttpActionResult> Deletegenres(int id)
         {

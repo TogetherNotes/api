@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.roles;
         }
 
-        // GET: api/roles/5
+        // GET: api/roles/{id}
         [ResponseType(typeof(roles))]
         public async Task<IHttpActionResult> Getroles(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             roles roles = await db.roles.FindAsync(id);
             if (roles == null)
             {

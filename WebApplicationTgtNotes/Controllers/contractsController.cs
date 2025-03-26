@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.contracts;
         }
 
-        // GET: api/contracts/5
+        // GET: api/contracts/{id}
         [ResponseType(typeof(contracts))]
         public async Task<IHttpActionResult> Getcontracts(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             contracts contracts = await db.contracts.FindAsync(id);
             if (contracts == null)
             {

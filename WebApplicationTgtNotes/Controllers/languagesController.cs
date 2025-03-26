@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.languages;
         }
 
-        // GET: api/languages/5
+        // GET: api/languages/{id}
         [ResponseType(typeof(languages))]
         public async Task<IHttpActionResult> Getlanguages(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             languages languages = await db.languages.FindAsync(id);
             if (languages == null)
             {

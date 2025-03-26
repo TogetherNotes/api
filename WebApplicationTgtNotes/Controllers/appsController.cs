@@ -14,17 +14,53 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/apps
-        public IQueryable<app> Getapp()
+        public IQueryable<object> Getapp()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.app;
+
+            return db.app
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role,
+                    a.rating,
+                    a.latitude,
+                    a.longitude,
+                    a.active,
+                    a.language_id,
+                    a.file_id,
+                    a.notification_id,
+                });
         }
 
-        // GET: api/apps/5
+        // GET: api/apps/{id}
         [ResponseType(typeof(app))]
         public async Task<IHttpActionResult> Getapp(int id)
         {
-            app app = await db.app.FindAsync(id);
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var app = await db.app
+                .Where(a => a.id == id)
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role,
+                    a.rating,
+                    a.latitude,
+                    a.longitude,
+                    a.active,
+                    a.language_id,
+                    a.file_id,
+                    a.notification_id
+                })
+                .FirstOrDefaultAsync();
+
             if (app == null)
             {
                 return NotFound();
@@ -33,7 +69,7 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(app);
         }
 
-        // PUT: api/apps/5
+        // PUT: api/apps/{id}
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putapp(int id, app app)
         {
@@ -83,7 +119,7 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = app.id }, app);
         }
 
-        // DELETE: api/apps/5
+        // DELETE: api/apps/}{id}
         [ResponseType(typeof(app))]
         public async Task<IHttpActionResult> Deleteapp(int id)
         {

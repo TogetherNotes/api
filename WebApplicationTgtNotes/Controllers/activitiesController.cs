@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.activity;
         }
 
-        // GET: api/activities/5
+        // GET: api/activities{id}
         [ResponseType(typeof(activity))]
         public async Task<IHttpActionResult> Getactivity(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             activity activity = await db.activity.FindAsync(id);
             if (activity == null)
             {

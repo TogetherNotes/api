@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.messages;
         }
 
-        // GET: api/messages/5
+        // GET: api/messages/{id}
         [ResponseType(typeof(messages))]
         public async Task<IHttpActionResult> Getmessages(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             messages messages = await db.messages.FindAsync(id);
             if (messages == null)
             {

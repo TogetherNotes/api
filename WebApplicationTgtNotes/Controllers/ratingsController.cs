@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.rating;
         }
 
-        // GET: api/ratings/5
+        // GET: api/ratings/{id}
         [ResponseType(typeof(rating))]
         public async Task<IHttpActionResult> Getrating(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             rating rating = await db.rating.FindAsync(id);
             if (rating == null)
             {

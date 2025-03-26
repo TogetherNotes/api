@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.files;
         }
 
-        // GET: api/files/5
+        // GET: api/files/{id}
         [ResponseType(typeof(files))]
         public async Task<IHttpActionResult> Getfiles(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             files files = await db.files.FindAsync(id);
             if (files == null)
             {

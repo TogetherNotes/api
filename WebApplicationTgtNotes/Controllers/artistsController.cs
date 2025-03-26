@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.artists;
         }
 
-        // GET: api/artists/5
+        // GET: api/artists/{id}
         [ResponseType(typeof(artists))]
         public async Task<IHttpActionResult> Getartists(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             artists artists = await db.artists.FindAsync(id);
             if (artists == null)
             {

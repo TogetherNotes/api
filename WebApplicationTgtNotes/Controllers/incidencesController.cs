@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.incidences;
         }
 
-        // GET: api/incidences/5
+        // GET: api/incidences/{id}
         [ResponseType(typeof(incidences))]
         public async Task<IHttpActionResult> Getincidences(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             incidences incidences = await db.incidences.FindAsync(id);
             if (incidences == null)
             {

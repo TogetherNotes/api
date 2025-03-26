@@ -20,10 +20,12 @@ namespace WebApplicationTgtNotes.Controllers
             return db.chats;
         }
 
-        // GET: api/chats/5
+        // GET: api/chats/{id}
         [ResponseType(typeof(chats))]
         public async Task<IHttpActionResult> Getchats(int id)
         {
+            db.Configuration.LazyLoadingEnabled = false;
+
             chats chats = await db.chats.FindAsync(id);
             if (chats == null)
             {
