@@ -9,50 +9,48 @@ using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Controllers
 {
-    public class artistsController : ApiController
+    public class matchesController : ApiController
     {
         private TgtNotesEntities db = new TgtNotesEntities();
 
-        // GET: api/artists
-        public IQueryable<artists> Getartists()
+        // GET: api/matches
+        public IQueryable<matches> Getmatches()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-
-
-            return db.artists;
+            return db.matches;
         }
 
-        // GET: api/artists/{id}
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Getartists(int id)
+        // GET: api/matches/{id}
+        [ResponseType(typeof(matches))]
+        public async Task<IHttpActionResult> Getmatches(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            matches matches = await db.matches.FindAsync(id);
+            if (matches == null)
             {
                 return NotFound();
             }
 
-            return Ok(artists);
+            return Ok(matches);
         }
 
-        // PUT: api/artists/5
+        // PUT: api/matches/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putartists(int id, artists artists)
+        public async Task<IHttpActionResult> Putmatches(int id, matches matches)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != artists.app_user_id)
+            if (id != matches.artist_id)
             {
                 return BadRequest();
             }
 
-            db.Entry(artists).State = EntityState.Modified;
+            db.Entry(matches).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +58,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!artistsExists(id))
+                if (!matchesExists(id))
                 {
                     return NotFound();
                 }
@@ -73,16 +71,16 @@ namespace WebApplicationTgtNotes.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/artists
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Postartists(artists artists)
+        // POST: api/matches
+        [ResponseType(typeof(matches))]
+        public async Task<IHttpActionResult> Postmatches(matches matches)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.artists.Add(artists);
+            db.matches.Add(matches);
 
             try
             {
@@ -90,7 +88,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateException)
             {
-                if (artistsExists(artists.app_user_id))
+                if (matchesExists(matches.artist_id))
                 {
                     return Conflict();
                 }
@@ -100,23 +98,23 @@ namespace WebApplicationTgtNotes.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = artists.app_user_id }, artists);
+            return CreatedAtRoute("DefaultApi", new { id = matches.artist_id }, matches);
         }
 
-        // DELETE: api/artists/5
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Deleteartists(int id)
+        // DELETE: api/matches/5
+        [ResponseType(typeof(matches))]
+        public async Task<IHttpActionResult> Deletematches(int id)
         {
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            matches matches = await db.matches.FindAsync(id);
+            if (matches == null)
             {
                 return NotFound();
             }
 
-            db.artists.Remove(artists);
+            db.matches.Remove(matches);
             await db.SaveChangesAsync();
 
-            return Ok(artists);
+            return Ok(matches);
         }
 
         protected override void Dispose(bool disposing)
@@ -128,9 +126,9 @@ namespace WebApplicationTgtNotes.Controllers
             base.Dispose(disposing);
         }
 
-        private bool artistsExists(int id)
+        private bool matchesExists(int id)
         {
-            return db.artists.Count(e => e.app_user_id == id) > 0;
+            return db.matches.Count(e => e.artist_id == id) > 0;
         }
     }
 }

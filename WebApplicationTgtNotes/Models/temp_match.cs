@@ -12,18 +12,16 @@ namespace WebApplicationTgtNotes.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class genres
+    public partial class temp_match
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public genres()
-        {
-            this.artist_genres = new HashSet<artist_genres>();
-        }
+        public int artist_id { get; set; }
+        public int space_id { get; set; }
+        public Nullable<bool> artist_like { get; set; }
+        public Nullable<bool> space_like { get; set; }
+        public string status { get; set; }
+        public Nullable<System.DateTime> request_date { get; set; }
     
-        public int id { get; set; }
-        public string name { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<artist_genres> artist_genres { get; set; }
+        public virtual app app { get; set; }
+        public virtual app app1 { get; set; }
     }
 }

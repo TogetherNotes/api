@@ -22,10 +22,12 @@ namespace WebApplicationTgtNotes.Models
             this.contracts = new HashSet<contracts>();
             this.contracts1 = new HashSet<contracts>();
             this.incidences = new HashSet<incidences>();
+            this.matches = new HashSet<matches>();
+            this.matches1 = new HashSet<matches>();
             this.rating1 = new HashSet<rating>();
             this.rating2 = new HashSet<rating>();
-            this.app1 = new HashSet<app>();
-            this.app2 = new HashSet<app>();
+            this.temp_match = new HashSet<temp_match>();
+            this.temp_match1 = new HashSet<temp_match>();
         }
     
         public int id { get; set; }
@@ -56,13 +58,17 @@ namespace WebApplicationTgtNotes.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<incidences> incidences { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<matches> matches { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<matches> matches1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<rating> rating1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<rating> rating2 { get; set; }
         public virtual spaces spaces { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<app> app1 { get; set; }
+        public virtual ICollection<temp_match> temp_match { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<app> app2 { get; set; }
+        public virtual ICollection<temp_match> temp_match1 { get; set; }
     }
 }

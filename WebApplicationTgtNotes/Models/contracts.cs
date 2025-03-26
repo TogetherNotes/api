@@ -17,6 +17,7 @@ namespace WebApplicationTgtNotes.Models
         public int artist_id { get; set; }
         public int space_id { get; set; }
         public string meet_type { get; set; }
+        public string status { get; set; }
         public System.DateTimeOffset init_hour { get; set; }
         public System.DateTimeOffset end_hour { get; set; }
     

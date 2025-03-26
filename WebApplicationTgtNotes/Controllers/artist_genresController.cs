@@ -9,50 +9,48 @@ using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Controllers
 {
-    public class artistsController : ApiController
+    public class artist_genresController : ApiController
     {
         private TgtNotesEntities db = new TgtNotesEntities();
 
-        // GET: api/artists
-        public IQueryable<artists> Getartists()
+        // GET: api/artist_genres
+        public IQueryable<artist_genres> Getartist_genres()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-
-
-            return db.artists;
+            return db.artist_genres;
         }
 
-        // GET: api/artists/{id}
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Getartists(int id)
+        // GET: api/artist_genres/{id}
+        [ResponseType(typeof(artist_genres))]
+        public async Task<IHttpActionResult> Getartist_genres(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            artist_genres artist_genres = await db.artist_genres.FindAsync(id);
+            if (artist_genres == null)
             {
                 return NotFound();
             }
 
-            return Ok(artists);
+            return Ok(artist_genres);
         }
 
-        // PUT: api/artists/5
+        // PUT: api/artist_genres/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putartists(int id, artists artists)
+        public async Task<IHttpActionResult> Putartist_genres(int id, artist_genres artist_genres)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != artists.app_user_id)
+            if (id != artist_genres.artist_id)
             {
                 return BadRequest();
             }
 
-            db.Entry(artists).State = EntityState.Modified;
+            db.Entry(artist_genres).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +58,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!artistsExists(id))
+                if (!artist_genresExists(id))
                 {
                     return NotFound();
                 }
@@ -73,16 +71,16 @@ namespace WebApplicationTgtNotes.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/artists
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Postartists(artists artists)
+        // POST: api/artist_genres
+        [ResponseType(typeof(artist_genres))]
+        public async Task<IHttpActionResult> Postartist_genres(artist_genres artist_genres)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.artists.Add(artists);
+            db.artist_genres.Add(artist_genres);
 
             try
             {
@@ -90,7 +88,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateException)
             {
-                if (artistsExists(artists.app_user_id))
+                if (artist_genresExists(artist_genres.artist_id))
                 {
                     return Conflict();
                 }
@@ -100,23 +98,23 @@ namespace WebApplicationTgtNotes.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = artists.app_user_id }, artists);
+            return CreatedAtRoute("DefaultApi", new { id = artist_genres.artist_id }, artist_genres);
         }
 
-        // DELETE: api/artists/5
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Deleteartists(int id)
+        // DELETE: api/artist_genres/5
+        [ResponseType(typeof(artist_genres))]
+        public async Task<IHttpActionResult> Deleteartist_genres(int id)
         {
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            artist_genres artist_genres = await db.artist_genres.FindAsync(id);
+            if (artist_genres == null)
             {
                 return NotFound();
             }
 
-            db.artists.Remove(artists);
+            db.artist_genres.Remove(artist_genres);
             await db.SaveChangesAsync();
 
-            return Ok(artists);
+            return Ok(artist_genres);
         }
 
         protected override void Dispose(bool disposing)
@@ -128,9 +126,9 @@ namespace WebApplicationTgtNotes.Controllers
             base.Dispose(disposing);
         }
 
-        private bool artistsExists(int id)
+        private bool artist_genresExists(int id)
         {
-            return db.artists.Count(e => e.app_user_id == id) > 0;
+            return db.artist_genres.Count(e => e.artist_id == id) > 0;
         }
     }
 }

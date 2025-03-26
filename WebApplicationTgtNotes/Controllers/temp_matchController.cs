@@ -9,50 +9,48 @@ using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Controllers
 {
-    public class artistsController : ApiController
+    public class temp_matchController : ApiController
     {
         private TgtNotesEntities db = new TgtNotesEntities();
 
-        // GET: api/artists
-        public IQueryable<artists> Getartists()
+        // GET: api/temp_match
+        public IQueryable<temp_match> Gettemp_match()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-
-
-            return db.artists;
+            return db.temp_match;
         }
 
-        // GET: api/artists/{id}
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Getartists(int id)
+        // GET: api/temp_match/{id}
+        [ResponseType(typeof(temp_match))]
+        public async Task<IHttpActionResult> Gettemp_match(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            temp_match temp_match = await db.temp_match.FindAsync(id);
+            if (temp_match == null)
             {
                 return NotFound();
             }
 
-            return Ok(artists);
+            return Ok(temp_match);
         }
 
-        // PUT: api/artists/5
+        // PUT: api/temp_match/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putartists(int id, artists artists)
+        public async Task<IHttpActionResult> Puttemp_match(int id, temp_match temp_match)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != artists.app_user_id)
+            if (id != temp_match.artist_id)
             {
                 return BadRequest();
             }
 
-            db.Entry(artists).State = EntityState.Modified;
+            db.Entry(temp_match).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +58,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!artistsExists(id))
+                if (!temp_matchExists(id))
                 {
                     return NotFound();
                 }
@@ -73,16 +71,16 @@ namespace WebApplicationTgtNotes.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/artists
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Postartists(artists artists)
+        // POST: api/temp_match
+        [ResponseType(typeof(temp_match))]
+        public async Task<IHttpActionResult> Posttemp_match(temp_match temp_match)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.artists.Add(artists);
+            db.temp_match.Add(temp_match);
 
             try
             {
@@ -90,7 +88,7 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateException)
             {
-                if (artistsExists(artists.app_user_id))
+                if (temp_matchExists(temp_match.artist_id))
                 {
                     return Conflict();
                 }
@@ -100,23 +98,23 @@ namespace WebApplicationTgtNotes.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = artists.app_user_id }, artists);
+            return CreatedAtRoute("DefaultApi", new { id = temp_match.artist_id }, temp_match);
         }
 
-        // DELETE: api/artists/5
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Deleteartists(int id)
+        // DELETE: api/temp_match/5
+        [ResponseType(typeof(temp_match))]
+        public async Task<IHttpActionResult> Deletetemp_match(int id)
         {
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            temp_match temp_match = await db.temp_match.FindAsync(id);
+            if (temp_match == null)
             {
                 return NotFound();
             }
 
-            db.artists.Remove(artists);
+            db.temp_match.Remove(temp_match);
             await db.SaveChangesAsync();
 
-            return Ok(artists);
+            return Ok(temp_match);
         }
 
         protected override void Dispose(bool disposing)
@@ -128,9 +126,9 @@ namespace WebApplicationTgtNotes.Controllers
             base.Dispose(disposing);
         }
 
-        private bool artistsExists(int id)
+        private bool temp_matchExists(int id)
         {
-            return db.artists.Count(e => e.app_user_id == id) > 0;
+            return db.temp_match.Count(e => e.artist_id == id) > 0;
         }
     }
 }

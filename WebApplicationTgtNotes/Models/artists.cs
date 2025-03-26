@@ -14,10 +14,16 @@ namespace WebApplicationTgtNotes.Models
     
     public partial class artists
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public artists()
+        {
+            this.artist_genres = new HashSet<artist_genres>();
+        }
+    
         public int app_user_id { get; set; }
-        public Nullable<int> genre_id { get; set; }
     
         public virtual app app { get; set; }
-        public virtual genres genres { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<artist_genres> artist_genres { get; set; }
     }
 }

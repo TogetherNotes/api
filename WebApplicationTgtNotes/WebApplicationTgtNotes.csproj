@@ -177,17 +177,20 @@
     <Compile Include="Controllers\adminsController.cs" />
     <Compile Include="Controllers\appsController.cs" />
     <Compile Include="Controllers\artistsController.cs" />
+    <Compile Include="Controllers\artist_genresController.cs" />
     <Compile Include="Controllers\chatsController.cs" />
     <Compile Include="Controllers\contractsController.cs" />
     <Compile Include="Controllers\filesController.cs" />
     <Compile Include="Controllers\genresController.cs" />
     <Compile Include="Controllers\incidencesController.cs" />
     <Compile Include="Controllers\languagesController.cs" />
+    <Compile Include="Controllers\matchesController.cs" />
     <Compile Include="Controllers\messagesController.cs" />
     <Compile Include="Controllers\notificationsController.cs" />
     <Compile Include="Controllers\ratingsController.cs" />
     <Compile Include="Controllers\rolesController.cs" />
     <Compile Include="Controllers\spacesController.cs" />
+    <Compile Include="Controllers\temp_matchController.cs" />
     <Compile Include="Models\activity.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
@@ -232,6 +235,9 @@
     <Compile Include="Models\artists.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\artist_genres.cs">
+      <DependentUpon>TogetherNotes.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\chats.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
@@ -255,10 +261,16 @@
     <Compile Include="Models\languages.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\matches.cs">
+      <DependentUpon>TogetherNotes.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\messages.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\notifications.cs">
+      <DependentUpon>TogetherNotes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\temp_match.cs">
       <DependentUpon>TogetherNotes.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
