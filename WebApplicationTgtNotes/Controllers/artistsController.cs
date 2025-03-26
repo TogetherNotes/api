@@ -14,13 +14,15 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/artists
-        public IQueryable<artists> Getartists()
+        public IQueryable<object> Getartists()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-
-
-            return db.artists;
+            return db.artists
+                .Select(a => new
+                {
+                    a.app_user_id
+                });
         }
 
         // GET: api/artists/{id}
