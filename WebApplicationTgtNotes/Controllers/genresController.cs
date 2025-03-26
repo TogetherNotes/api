@@ -26,20 +26,30 @@ namespace WebApplicationTgtNotes.Controllers
                 });
         }
 
-        // GET: api/genres/5
-        [ResponseType(typeof(genres))]
+        // GET: api/genres/{id}
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getgenres(int id)
         {
-            genres genres = await db.genres.FindAsync(id);
-            if (genres == null)
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var genre = await db.genres
+                .Where(g => g.id == id)
+                .Select(g => new
+                {
+                    g.id,
+                    g.name
+                })
+                .FirstOrDefaultAsync();
+
+            if (genre == null)
             {
                 return NotFound();
             }
 
-            return Ok(genres);
+            return Ok(genre);
         }
 
-        // PUT: api/genres/5
+        // PUT: api/genres/{id}
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putgenres(int id, genres genres)
         {
