@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,45 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/languages
-        public IQueryable<languages> Getlanguages()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getlanguages()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.languages;
+
+            var languages = await db.languages
+                .Select(l => new
+                {
+                    l.id,
+                    l.name
+                })
+                .ToListAsync();
+
+            return Ok(languages);
         }
 
         // GET: api/languages/{id}
         [HttpGet]
         [Route("api/languages/{id}")]
-        [ResponseType(typeof(languages))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getlanguages(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            languages languages = await db.languages.FindAsync(id);
-            if (languages == null)
+            var language = await db.languages
+                .Where(l => l.id == id)
+                .Select(l => new
+                {
+                    l.id,
+                    l.name
+                })
+                .FirstOrDefaultAsync();
+
+            if (language == null)
             {
                 return NotFound();
             }
 
-            return Ok(languages);
+            return Ok(language);
         }
 
         // PUT: api/languages/5

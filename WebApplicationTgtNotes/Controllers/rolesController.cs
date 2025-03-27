@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,46 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/roles
-        public IQueryable<roles> Getroles()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getroles()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.roles;
+
+            var roles = await db.roles
+                .Select(r => new
+                {
+                    r.id,
+                    r.name
+                })
+                .ToListAsync();
+
+            return Ok(roles);
         }
+
 
         // GET: api/roles/{id}
         [HttpGet]
         [Route("api/roles/{id}")]
-        [ResponseType(typeof(roles))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getroles(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            roles roles = await db.roles.FindAsync(id);
-            if (roles == null)
+            var role = await db.roles
+                .Where(r => r.id == id)
+                .Select(r => new
+                {
+                    r.id,
+                    r.name
+                })
+                .FirstOrDefaultAsync();
+
+            if (role == null)
             {
                 return NotFound();
             }
 
-            return Ok(roles);
+            return Ok(role);
         }
 
         // PUT: api/roles/5

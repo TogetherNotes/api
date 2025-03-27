@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,21 +15,43 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/ratings
-        public IQueryable<rating> Getrating()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getrating()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.rating;
+
+            var ratings = await db.rating
+                .Select(r => new
+                {
+                    r.id,
+                    r.rating,
+                    r.artist_id,
+                    r.space_id
+                })
+                .ToListAsync();
+
+            return Ok(ratings);
         }
 
         // GET: api/ratings/{id}
         [HttpGet]
         [Route("api/ratings/{id}")]
-        [ResponseType(typeof(rating))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getrating(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            rating rating = await db.rating.FindAsync(id);
+            var rating = await db.rating
+                .Where(r => r.id == id)
+                .Select(r => new
+                {
+                    r.id,
+                    r.rating,
+                    r.artist_id,
+                    r.space_id
+                })
+                .FirstOrDefaultAsync();
+
             if (rating == null)
             {
                 return NotFound();

@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,25 +15,69 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/notifications
-        public IQueryable<notifications> Getnotifications()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getnotifications()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.notifications;
+
+            var notifications = await db.notifications
+                .Select(n => new
+                {
+                    n.id,
+                    n.content,
+                    n.date,
+                    n.app_id
+                })
+                .ToListAsync();
+
+            return Ok(notifications);
         }
 
-        // GET: api/notifications/{id}
+        // GET: api/notifications/{app_id}/{id}
         [HttpGet]
-        [Route("api/notifications/{id}")]
-        [ResponseType(typeof(notifications))]
-        public async Task<IHttpActionResult> Getnotifications(int id)
+        [Route("api/notifications/{app_id:int}/{id:int}")]
+        [ResponseType(typeof(object))]
+        public async Task<IHttpActionResult> Getnotification(int app_id, int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            notifications notifications = await db.notifications.FindAsync(id);
-            if (notifications == null)
+            var notification = await db.notifications
+                .Where(n => n.app_id == app_id && n.id == id)
+                .Select(n => new
+                {
+                    n.id,
+                    n.content,
+                    n.date,
+                    n.app_id
+                })
+                .FirstOrDefaultAsync();
+
+            if (notification == null)
             {
                 return NotFound();
             }
+
+            return Ok(notification);
+        }
+
+        // GET: api/notifications/by-app/{app_id}
+        [HttpGet]
+        [Route("api/notifications/by-app/{app_id:int}")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetNotificationsByApp(int app_id)
+        {
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var notifications = await db.notifications
+                .Where(n => n.app_id == app_id)
+                .Select(n => new
+                {
+                    n.id,
+                    n.content,
+                    n.date,
+                    n.app_id
+                })
+                .ToListAsync();
 
             return Ok(notifications);
         }

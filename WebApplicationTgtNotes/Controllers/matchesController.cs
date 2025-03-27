@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,28 +15,47 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/matches
-        public IQueryable<matches> Getmatches()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getmatches()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            return db.matches;
+            var matches = await db.matches
+                .Select(m => new
+                {
+                    m.artist_id,
+                    m.space_id,
+                    m.match_date
+                })
+                .ToListAsync();
+
+            return Ok(matches);
         }
 
-        // GET: api/matches/{id}
+        // GET: api/matches/{artist_id}/{space_id}
         [HttpGet]
-        [Route("api/matches/{id}")]
-        [ResponseType(typeof(matches))]
-        public async Task<IHttpActionResult> Getmatches(int id)
+        [Route("api/matches/{artist_id}/{space_id}")]
+        [ResponseType(typeof(object))]
+        public async Task<IHttpActionResult> Getmatches(int artist_id, int space_id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            matches matches = await db.matches.FindAsync(id);
-            if (matches == null)
+            var match = await db.matches
+                .Where(m => m.artist_id == artist_id && m.space_id == space_id)
+                .Select(m => new
+                {
+                    m.artist_id,
+                    m.space_id,
+                    m.match_date
+                })
+                .FirstOrDefaultAsync();
+
+            if (match == null)
             {
                 return NotFound();
             }
 
-            return Ok(matches);
+            return Ok(match);
         }
 
         // PUT: api/matches/5

@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,55 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/messages
-        public IQueryable<messages> Getmessages()
+        [HttpGet]
+        [Route("api/messages")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getmessages()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.messages;
+
+            var messages = await db.messages
+                .Select(m => new
+                {
+                    m.id,
+                    m.sender_id,
+                    m.content,
+                    m.send_at,
+                    m.is_read,
+                    m.chat_id
+                })
+                .ToListAsync();
+
+            return Ok(messages);
         }
 
         // GET: api/messages/{id}
         [HttpGet]
         [Route("api/messages/{id}")]
-        [ResponseType(typeof(messages))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getmessages(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            messages messages = await db.messages.FindAsync(id);
-            if (messages == null)
+            var message = await db.messages
+                .Where(m => m.id == id)
+                .Select(m => new
+                {
+                    m.id,
+                    m.sender_id,
+                    m.content,
+                    m.send_at,
+                    m.is_read,
+                    m.chat_id
+                })
+                .FirstOrDefaultAsync();
+
+            if (message == null)
             {
                 return NotFound();
             }
 
-            return Ok(messages);
+            return Ok(message);
         }
 
         // PUT: api/messages/5

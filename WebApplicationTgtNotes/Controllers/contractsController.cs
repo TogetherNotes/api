@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,53 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/contracts
-        public IQueryable<contracts> Getcontracts()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getcontracts()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.contracts;
+
+            var contracts = await db.contracts
+                .Select(c => new
+                {
+                    c.artist_id,
+                    c.space_id,
+                    c.meet_type,
+                    c.status,
+                    c.init_hour,
+                    c.end_hour
+                })
+                .ToListAsync();
+
+            return Ok(contracts);
         }
 
-        // GET: api/contracts/{id}
+        // GET: api/contracts/{artist_id}/{space_id}
         [HttpGet]
-        [Route("api/contracts/{id}")]
-        [ResponseType(typeof(contracts))]
-        public async Task<IHttpActionResult> Getcontracts(int id)
+        [Route("api/contracts/{artist_id}/{space_id}")]
+        [ResponseType(typeof(object))]
+        public async Task<IHttpActionResult> Getcontract(int artist_id, int space_id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            contracts contracts = await db.contracts.FindAsync(id);
-            if (contracts == null)
+            var contract = await db.contracts
+                .Where(c => c.artist_id == artist_id && c.space_id == space_id)
+                .Select(c => new
+                {
+                    c.artist_id,
+                    c.space_id,
+                    c.meet_type,
+                    c.status,
+                    c.init_hour,
+                    c.end_hour
+                })
+                .FirstOrDefaultAsync();
+
+            if (contract == null)
             {
                 return NotFound();
             }
 
-            return Ok(contracts);
+            return Ok(contract);
         }
 
         // PUT: api/contracts/5

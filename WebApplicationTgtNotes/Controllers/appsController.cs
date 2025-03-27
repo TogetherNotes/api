@@ -29,9 +29,7 @@ namespace WebApplicationTgtNotes.Controllers
                     a.latitude,
                     a.longitude,
                     a.active,
-                    a.language_id,
-                    a.file_id,
-                    a.notification_id,
+                    a.language_id
                 });
         }
 
@@ -56,9 +54,7 @@ namespace WebApplicationTgtNotes.Controllers
                     a.latitude,
                     a.longitude,
                     a.active,
-                    a.language_id,
-                    a.file_id,
-                    a.notification_id
+                    a.language_id
                 })
                 .FirstOrDefaultAsync();
 
@@ -102,8 +98,6 @@ namespace WebApplicationTgtNotes.Controllers
             existingApp.longitude = app.longitude;
             existingApp.active = app.active;
             existingApp.language_id = app.language_id;
-            existingApp.file_id = app.file_id;
-            existingApp.notification_id = app.notification_id;
 
             try
             {

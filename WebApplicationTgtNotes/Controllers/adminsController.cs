@@ -14,10 +14,19 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/admins
-        public IQueryable<admin> Getadmin()
+        public IQueryable<object> Getadmin()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.admin;
+
+            return db.admin
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role_id
+                });
         }
 
         // GET: api/admins/{id}
@@ -28,13 +37,24 @@ namespace WebApplicationTgtNotes.Controllers
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            admin admin = await db.admin.FindAsync(id);
+            var admin = await db.admin
+                .Where(a => a.id == id)
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role_id
+                })
+                .FirstOrDefaultAsync();
+
             if (admin == null)
             {
                 return NotFound();
             }
 
-            return Ok(admin);
+                return Ok(admin);
         }
 
         // PUT: api/admins/5

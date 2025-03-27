@@ -299,6 +299,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TogetherNotes.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Sockets\ChatManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />

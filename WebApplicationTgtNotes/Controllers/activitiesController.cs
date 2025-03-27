@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,11 +15,12 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/activities
-        public IQueryable<object> Getactivity()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getactivities()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            return db.activity
+            var activities = await db.activity
                 .Select(a => new
                 {
                     a.id,
@@ -27,12 +29,15 @@ namespace WebApplicationTgtNotes.Controllers
                     a.description,
                     a.date,
                     a.admin_user_id
-                });
+                })
+                .ToListAsync();
+
+            return Ok(activities);
         }
 
-        // GET: api/activities{id}
+        // GET: api/activities/{id}
         [HttpGet]
-        [Route("api/activities/{id}")]
+        [Route("api/activities/{id:int}")]
         [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getactivity(int id)
         {

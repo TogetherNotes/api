@@ -13,8 +13,6 @@ namespace WebApplicationTgtNotes.DTO
         public decimal? longitude { get; set; }
         public bool active { get; set; }
         public int? language_id { get; set; }
-        public int? file_id { get; set; }
-        public int? notification_id { get; set; }
 
         // Artists
         public List<int> genre_ids { get; set; }

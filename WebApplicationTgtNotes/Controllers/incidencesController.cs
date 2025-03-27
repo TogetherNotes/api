@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,49 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/incidences
-        public IQueryable<incidences> Getincidences()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getincidences()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.incidences;
+
+            var incidences = await db.incidences
+                .Select(i => new
+                {
+                    i.app_user_id,
+                    i.admin_user_id,
+                    i.description,
+                    i.status
+                })
+                .ToListAsync();
+
+            return Ok(incidences);
         }
 
-        // GET: api/incidences/{id}
+        // GET: api/incidences/{appUserId}/{adminUserId}
         [HttpGet]
-        [Route("api/incidences/{id}")]
-        [ResponseType(typeof(incidences))]
-        public async Task<IHttpActionResult> Getincidences(int id)
+        [Route("api/incidences/{appUserId:int}/{adminUserId:int}")]
+        [ResponseType(typeof(object))]
+        public async Task<IHttpActionResult> Getincidence(int appUserId, int adminUserId)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            incidences incidences = await db.incidences.FindAsync(id);
-            if (incidences == null)
+            var incidence = await db.incidences
+                .Where(i => i.app_user_id == appUserId && i.admin_user_id == adminUserId)
+                .Select(i => new
+                {
+                    i.app_user_id,
+                    i.admin_user_id,
+                    i.description,
+                    i.status
+                })
+                .FirstOrDefaultAsync();
+
+            if (incidence == null)
             {
                 return NotFound();
             }
 
-            return Ok(incidences);
+            return Ok(incidence);
         }
 
         // PUT: api/incidences/5

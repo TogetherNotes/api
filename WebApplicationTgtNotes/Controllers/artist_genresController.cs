@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,29 +15,45 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/artist_genres
-        public IQueryable<artist_genres> Getartist_genres()
+        public IQueryable<object> Getartist_genres()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            return db.artist_genres;
+            return db.artist_genres
+                .Select(a => new
+                {
+                    a.artist_id,
+                    a.genre_id,
+                    a.creation_date
+                });
         }
 
-        // GET: api/artist_genres/{id}
+        // GET: api/artist_genres/{genre_id}
         [HttpGet]
         [Route("api/artist_genres/{id}")]
-        [ResponseType(typeof(artist_genres))]
+        [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getartist_genres(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            artist_genres artist_genres = await db.artist_genres.FindAsync(id);
-            if (artist_genres == null)
+            var genres = await db.artist_genres
+                .Where(a => a.genre_id == id)
+                .Select(a => new
+                {
+                    a.artist_id,
+                    a.genre_id,
+                    a.creation_date
+                })
+                .ToListAsync();
+
+            if (genres == null || !genres.Any())
             {
                 return NotFound();
             }
 
-            return Ok(artist_genres);
+            return Ok(genres);
         }
+
 
         // PUT: api/artist_genres/5
         [ResponseType(typeof(void))]

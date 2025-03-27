@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,28 +15,53 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/temp_match
-        public IQueryable<temp_match> Gettemp_match()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Gettemp_match()
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            return db.temp_match;
+            var tempMatches = await db.temp_match
+                .Select(tm => new
+                {
+                    tm.artist_id,
+                    tm.space_id,
+                    tm.artist_like,
+                    tm.space_like,
+                    tm.status,
+                    tm.request_date
+                })
+                .ToListAsync();
+
+            return Ok(tempMatches);
         }
 
-        // GET: api/temp_match/{id}
+        // GET: api/temp_match/{artist_id}/{space_id}
         [HttpGet]
-        [Route("api/temp_match/{id}")]
-        [ResponseType(typeof(temp_match))]
-        public async Task<IHttpActionResult> Gettemp_match(int id)
+        [Route("api/temp_match/{artist_id:int}/{space_id:int}")]
+        [ResponseType(typeof(object))]
+        public async Task<IHttpActionResult> Gettemp_match(int artist_id, int space_id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            temp_match temp_match = await db.temp_match.FindAsync(id);
-            if (temp_match == null)
+            var tempMatch = await db.temp_match
+                .Where(tm => tm.artist_id == artist_id && tm.space_id == space_id)
+                .Select(tm => new
+                {
+                    tm.artist_id,
+                    tm.space_id,
+                    tm.artist_like,
+                    tm.space_like,
+                    tm.status,
+                    tm.request_date
+                })
+                .FirstOrDefaultAsync();
+
+            if (tempMatch == null)
             {
                 return NotFound();
             }
 
-            return Ok(temp_match);
+            return Ok(tempMatch);
         }
 
         // PUT: api/temp_match/5

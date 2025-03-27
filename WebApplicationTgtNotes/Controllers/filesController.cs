@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,49 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/files
-        public IQueryable<files> Getfiles()
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> Getfiles()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.files;
+
+            var files = await db.files
+                .Select(f => new
+                {
+                    f.id,
+                    f.name,
+                    f.type,
+                    f.date
+                })
+                .ToListAsync();
+
+            return Ok(files);
         }
 
         // GET: api/files/{id}
         [HttpGet]
         [Route("api/files/{id}")]
-        [ResponseType(typeof(files))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getfiles(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            files files = await db.files.FindAsync(id);
-            if (files == null)
+            var file = await db.files
+                .Where(f => f.id == id)
+                .Select(f => new
+                {
+                    f.id,
+                    f.name,
+                    f.type,
+                    f.date
+                })
+                .FirstOrDefaultAsync();
+
+            if (file == null)
             {
                 return NotFound();
             }
 
-            return Ok(files);
+            return Ok(file);
         }
 
         // PUT: api/files/5

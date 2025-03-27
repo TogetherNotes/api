@@ -111,9 +111,7 @@ namespace WebApplicationTgtNotes.Controllers
                         latitude = data.latitude,
                         longitude = data.longitude,
                         active = data.active,
-                        language_id = data.language_id,
-                        file_id = data.file_id,
-                        notification_id = data.notification_id
+                        language_id = data.language_id
                     };
 
                     db.app.Add(newApp);
