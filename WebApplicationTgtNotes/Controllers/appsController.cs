@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -35,6 +36,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/apps/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(app))]
         public async Task<IHttpActionResult> Getapp(int id)
         {
@@ -67,20 +70,58 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(app);
         }
 
-        // DELETE: api/apps/}{id}
-        [ResponseType(typeof(app))]
-        public async Task<IHttpActionResult> Deleteapp(int id)
+        // PUT: api/apps/{id}
+        [HttpPut]
+        [Route("api/apps/{id}")]
+        [ResponseType(typeof(void))]
+        public async Task<IHttpActionResult> Putapp(int id, app app)
         {
-            app app = await db.app.FindAsync(id);
-            if (app == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != app.id)
+            {
+                return BadRequest();
+            }
+
+            var existingApp = await db.app.FindAsync(id);
+            if (existingApp == null)
             {
                 return NotFound();
             }
 
-            db.app.Remove(app);
-            await db.SaveChangesAsync();
+            // Valors que pot modificar l'usuari
+            existingApp.name = app.name;
+            existingApp.mail = app.mail;
+            existingApp.password = app.password;
+            existingApp.role = app.role;
+            existingApp.rating = app.rating;
+            existingApp.latitude = app.latitude;
+            existingApp.longitude = app.longitude;
+            existingApp.active = app.active;
+            existingApp.language_id = app.language_id;
+            existingApp.file_id = app.file_id;
+            existingApp.notification_id = app.notification_id;
 
-            return Ok(app);
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!appExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(new { status = "ok", message = "L'usuari s'ha actualitzat correctament" });
         }
 
         protected override void Dispose(bool disposing)
@@ -90,6 +131,11 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool appExists(int id)
+        {
+            return db.app.Count(e => e.id == id) > 0;
         }
     }
 }
