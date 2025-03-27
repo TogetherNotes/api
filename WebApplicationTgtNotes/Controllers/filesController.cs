@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/files/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(files))]
         public async Task<IHttpActionResult> Getfiles(int id)
         {

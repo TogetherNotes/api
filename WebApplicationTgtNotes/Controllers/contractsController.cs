@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/contracts/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(contracts))]
         public async Task<IHttpActionResult> Getcontracts(int id)
         {

@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/spaces/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(spaces))]
         public async Task<IHttpActionResult> Getspaces(int id)
         {

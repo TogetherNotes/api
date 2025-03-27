@@ -22,6 +22,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/artist_genres/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(artist_genres))]
         public async Task<IHttpActionResult> Getartist_genres(int id)
         {

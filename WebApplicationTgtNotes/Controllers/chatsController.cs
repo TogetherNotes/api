@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/chats/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(chats))]
         public async Task<IHttpActionResult> Getchats(int id)
         {

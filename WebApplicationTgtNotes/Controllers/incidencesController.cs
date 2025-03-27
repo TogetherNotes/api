@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/incidences/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(incidences))]
         public async Task<IHttpActionResult> Getincidences(int id)
         {

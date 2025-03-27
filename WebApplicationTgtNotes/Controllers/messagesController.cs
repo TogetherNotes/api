@@ -21,6 +21,8 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // GET: api/messages/{id}
+        [HttpGet]
+        [Route("api/apps/{id}")]
         [ResponseType(typeof(messages))]
         public async Task<IHttpActionResult> Getmessages(int id)
         {
