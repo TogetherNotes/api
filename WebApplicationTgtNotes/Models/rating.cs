@@ -15,7 +15,7 @@ namespace WebApplicationTgtNotes.Models
     public partial class rating
     {
         public int id { get; set; }
-        public Nullable<int> rating { get; set; }
+        public Nullable<int> rating_num { get; set; }
         public Nullable<int> artist_id { get; set; }
         public Nullable<int> space_id { get; set; }
     

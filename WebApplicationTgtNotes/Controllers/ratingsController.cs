@@ -24,7 +24,7 @@ namespace WebApplicationTgtNotes.Controllers
                 .Select(r => new
                 {
                     r.id,
-                    r.rating,
+                    r.rating_num,
                     r.artist_id,
                     r.space_id
                 })
@@ -46,7 +46,7 @@ namespace WebApplicationTgtNotes.Controllers
                 .Select(r => new
                 {
                     r.id,
-                    r.rating,
+                    r.rating_num,
                     r.artist_id,
                     r.space_id
                 })
