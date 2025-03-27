@@ -1,10 +1,12 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using WebApplicationTgtNotes.DTO;
 using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Controllers
@@ -72,50 +74,58 @@ namespace WebApplicationTgtNotes.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/spaces
-        [ResponseType(typeof(spaces))]
-        public async Task<IHttpActionResult> Postspaces(spaces spaces)
+        // POST: api/spaces/register
+        [HttpPost]
+        [Route("api/spaces/register")]
+        public async Task<IHttpActionResult> RegisterSpace(UserRegisterDTO data)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            db.spaces.Add(spaces);
-
-            try
+            using (var transaction = db.Database.BeginTransaction())
             {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (spacesExists(spaces.app_user_id))
+                try
                 {
-                    return Conflict();
+                    // Crear app
+                    var newApp = new app
+                    {
+                        name = data.name,
+                        mail = data.mail,
+                        password = data.password,
+                        role = data.role,
+                        rating = data.rating,
+                        latitude = data.latitude,
+                        longitude = data.longitude,
+                        active = data.active,
+                        language_id = data.language_id,
+                        file_id = data.file_id,
+                        notification_id = data.notification_id
+                    };
+
+                    db.app.Add(newApp);
+                    await db.SaveChangesAsync();
+
+                    // Crear space vinculat
+                    var newSpace = new spaces
+                    {
+                        app_user_id = newApp.id,
+                        capacity = data.capacity,
+                        zip_code = data.zip_code
+                    };
+
+                    db.spaces.Add(newSpace);
+                    await db.SaveChangesAsync();
+
+                    transaction.Commit();
+
+                    return Ok(new { status = "ok", app_id = newApp.id });
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw;
+                    transaction.Rollback();
+                    return InternalServerError(ex);
                 }
             }
-
-            return CreatedAtRoute("DefaultApi", new { id = spaces.app_user_id }, spaces);
-        }
-
-        // DELETE: api/spaces/5
-        [ResponseType(typeof(spaces))]
-        public async Task<IHttpActionResult> Deletespaces(int id)
-        {
-            spaces spaces = await db.spaces.FindAsync(id);
-            if (spaces == null)
-            {
-                return NotFound();
-            }
-
-            db.spaces.Remove(spaces);
-            await db.SaveChangesAsync();
-
-            return Ok(spaces);
         }
 
         protected override void Dispose(bool disposing)

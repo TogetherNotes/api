@@ -1,10 +1,12 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using WebApplicationTgtNotes.DTO;
 using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Controllers
@@ -77,50 +79,74 @@ namespace WebApplicationTgtNotes.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/artists
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Postartists(artists artists)
+        // POST: api/artists/register
+        [HttpPost]
+        [Route("api/artists/register")]
+        public async Task<IHttpActionResult> RegisterArtist(UserRegisterDTO data)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.artists.Add(artists);
-
-            try
+            using (var transaction = db.Database.BeginTransaction())
             {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (artistsExists(artists.app_user_id))
+                try
                 {
-                    return Conflict();
+                    // Crear app
+                    var newApp = new app
+                    {
+                        name = data.name,
+                        mail = data.mail,
+                        password = data.password,
+                        role = data.role,
+                        rating = data.rating,
+                        latitude = data.latitude,
+                        longitude = data.longitude,
+                        active = data.active,
+                        language_id = data.language_id,
+                        file_id = data.file_id,
+                        notification_id = data.notification_id
+                    };
+
+                    db.app.Add(newApp);
+                    await db.SaveChangesAsync();
+
+                    // Crear artista vinculat a app
+                    var newArtist = new artists
+                    {
+                        app_user_id = newApp.id
+                    };
+
+                    db.artists.Add(newArtist);
+                    await db.SaveChangesAsync();
+
+                    // Crear associacions amb gèneres
+                    if (data.genre_ids != null)
+                    {
+                        foreach (var genreId in data.genre_ids)
+                        {
+                            db.artist_genres.Add(new artist_genres
+                            {
+                                artist_id = newArtist.app_user_id,
+                                genre_id = genreId,
+                                creation_date = DateTime.Now
+                            });
+                        }
+
+                        await db.SaveChangesAsync();
+                    }
+
+                    transaction.Commit();
+
+                    return Ok(new { status = "ok", app_id = newApp.id });
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw;
+                    transaction.Rollback();
+                    return InternalServerError(ex);
                 }
             }
-
-            return CreatedAtRoute("DefaultApi", new { id = artists.app_user_id }, artists);
-        }
-
-        // DELETE: api/artists/5
-        [ResponseType(typeof(artists))]
-        public async Task<IHttpActionResult> Deleteartists(int id)
-        {
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
-            {
-                return NotFound();
-            }
-
-            db.artists.Remove(artists);
-            await db.SaveChangesAsync();
-
-            return Ok(artists);
         }
 
         protected override void Dispose(bool disposing)
