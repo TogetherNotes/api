@@ -5,38 +5,38 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="40f1cebb5ae146dd8f10772d0f32b0db" Name="Diagram1" ZoomLevel="74">
-        <EntityTypeShape EntityType="TgtNotesModel.activity" Width="1.5" PointX="8.25" PointY="3.125" />
+        <EntityTypeShape EntityType="TgtNotesModel.activity" Width="1.5" PointX="8.25" PointY="8.125" />
         <EntityTypeShape EntityType="TgtNotesModel.admin" Width="1.5" PointX="6" PointY="0.75" />
-        <EntityTypeShape EntityType="TgtNotesModel.app" Width="1.5" PointX="3" PointY="10.875" />
-        <EntityTypeShape EntityType="TgtNotesModel.artist_genres" Width="1.5" PointX="7.5" PointY="6.75" />
-        <EntityTypeShape EntityType="TgtNotesModel.artists" Width="1.5" PointX="5.25" PointY="7" />
-        <EntityTypeShape EntityType="TgtNotesModel.chats" Width="1.5" PointX="5.25" PointY="18.125" />
-        <EntityTypeShape EntityType="TgtNotesModel.contracts" Width="1.5" PointX="5.25" PointY="14.75" />
-        <EntityTypeShape EntityType="TgtNotesModel.files" Width="1.5" PointX="0.75" PointY="13" />
-        <EntityTypeShape EntityType="TgtNotesModel.genres" Width="1.5" PointX="5.25" PointY="12" />
-        <EntityTypeShape EntityType="TgtNotesModel.incidences" Width="1.5" PointX="8.25" PointY="13" />
-        <EntityTypeShape EntityType="TgtNotesModel.languages" Width="1.5" PointX="0.75" PointY="16.5" />
-        <EntityTypeShape EntityType="TgtNotesModel.matches" Width="1.5" PointX="5.25" PointY="4.25" />
-        <EntityTypeShape EntityType="TgtNotesModel.messages" Width="1.5" PointX="7.5" PointY="18.125" />
-        <EntityTypeShape EntityType="TgtNotesModel.notifications" Width="1.5" PointX="0.75" PointY="10" />
-        <EntityTypeShape EntityType="TgtNotesModel.rating" Width="1.5" PointX="5.25" PointY="21.25" />
+        <EntityTypeShape EntityType="TgtNotesModel.app" Width="1.5" PointX="3" PointY="14" />
+        <EntityTypeShape EntityType="TgtNotesModel.artist_genres" Width="1.5" PointX="7.5" PointY="19" />
+        <EntityTypeShape EntityType="TgtNotesModel.artists" Width="1.5" PointX="5.25" PointY="19.25" />
+        <EntityTypeShape EntityType="TgtNotesModel.chats" Width="1.5" PointX="5.25" PointY="4.5" />
+        <EntityTypeShape EntityType="TgtNotesModel.contracts" Width="1.5" PointX="5.25" PointY="10.25" />
+        <EntityTypeShape EntityType="TgtNotesModel.files" Width="1.5" PointX="5.25" PointY="30.375" />
+        <EntityTypeShape EntityType="TgtNotesModel.genres" Width="1.5" PointX="5.25" PointY="34.25" />
+        <EntityTypeShape EntityType="TgtNotesModel.incidences" Width="1.5" PointX="8.25" PointY="16" />
+        <EntityTypeShape EntityType="TgtNotesModel.languages" Width="1.5" PointX="0.75" PointY="16.25" />
+        <EntityTypeShape EntityType="TgtNotesModel.matches" Width="1.5" PointX="5.25" PointY="16.5" />
+        <EntityTypeShape EntityType="TgtNotesModel.messages" Width="1.5" PointX="7.5" PointY="4.5" />
+        <EntityTypeShape EntityType="TgtNotesModel.notifications" Width="1.5" PointX="5.25" PointY="7.5" />
+        <EntityTypeShape EntityType="TgtNotesModel.rating" Width="1.5" PointX="5.25" PointY="24.125" />
         <EntityTypeShape EntityType="TgtNotesModel.roles" Width="1.5" PointX="3.75" PointY="1.375" />
-        <EntityTypeShape EntityType="TgtNotesModel.spaces" Width="1.5" PointX="5.25" PointY="9.375" />
-        <EntityTypeShape EntityType="TgtNotesModel.temp_match" Width="1.5" PointX="5.25" PointY="24.125" />
+        <EntityTypeShape EntityType="TgtNotesModel.spaces" Width="1.5" PointX="5.25" PointY="21.625" />
+        <EntityTypeShape EntityType="TgtNotesModel.temp_match" Width="1.5" PointX="5.25" PointY="27" />
         <AssociationConnector Association="TgtNotesModel.fk_activity_admin" />
         <AssociationConnector Association="TgtNotesModel.fk_admin_role" />
         <AssociationConnector Association="TgtNotesModel.fk_incidences_admin" />
-        <AssociationConnector Association="TgtNotesModel.fk_app_file" />
         <AssociationConnector Association="TgtNotesModel.fk_app_language" />
-        <AssociationConnector Association="TgtNotesModel.fk_app_notification" />
         <AssociationConnector Association="TgtNotesModel.fk_artists_app" />
         <AssociationConnector Association="TgtNotesModel.fk_chats_user1" />
         <AssociationConnector Association="TgtNotesModel.fk_chats_user2" />
         <AssociationConnector Association="TgtNotesModel.fk_contracts_artist" />
         <AssociationConnector Association="TgtNotesModel.fk_contracts_space" />
+        <AssociationConnector Association="TgtNotesModel.fk_file_app" />
         <AssociationConnector Association="TgtNotesModel.fk_incidences_app" />
         <AssociationConnector Association="TgtNotesModel.fk_matches_artist" />
         <AssociationConnector Association="TgtNotesModel.fk_matches_space" />
+        <AssociationConnector Association="TgtNotesModel.fk_notifications_app" />
         <AssociationConnector Association="TgtNotesModel.fk_rating_artist" />
         <AssociationConnector Association="TgtNotesModel.fk_rating_space" />
         <AssociationConnector Association="TgtNotesModel.fk_spaces_app" />

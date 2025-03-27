@@ -14,18 +14,12 @@ namespace WebApplicationTgtNotes.Models
     
     public partial class files
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public files()
-        {
-            this.app = new HashSet<app>();
-        }
-    
         public int id { get; set; }
         public string name { get; set; }
         public string type { get; set; }
         public Nullable<System.DateTime> date { get; set; }
+        public int app_id { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<app> app { get; set; }
+        public virtual app app { get; set; }
     }
 }

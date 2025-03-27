@@ -21,9 +21,11 @@ namespace WebApplicationTgtNotes.Models
             this.chats1 = new HashSet<chats>();
             this.contracts = new HashSet<contracts>();
             this.contracts1 = new HashSet<contracts>();
+            this.files = new HashSet<files>();
             this.incidences = new HashSet<incidences>();
             this.matches = new HashSet<matches>();
             this.matches1 = new HashSet<matches>();
+            this.notifications = new HashSet<notifications>();
             this.rating1 = new HashSet<rating>();
             this.rating2 = new HashSet<rating>();
             this.temp_match = new HashSet<temp_match>();
@@ -40,12 +42,8 @@ namespace WebApplicationTgtNotes.Models
         public Nullable<decimal> longitude { get; set; }
         public Nullable<bool> active { get; set; }
         public Nullable<int> language_id { get; set; }
-        public Nullable<int> file_id { get; set; }
-        public Nullable<int> notification_id { get; set; }
     
-        public virtual files files { get; set; }
         public virtual languages languages { get; set; }
-        public virtual notifications notifications { get; set; }
         public virtual artists artists { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<chats> chats { get; set; }
@@ -56,11 +54,15 @@ namespace WebApplicationTgtNotes.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<contracts> contracts1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<files> files { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<incidences> incidences { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<matches> matches { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<matches> matches1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<notifications> notifications { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<rating> rating1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

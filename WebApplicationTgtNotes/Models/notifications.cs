@@ -14,17 +14,11 @@ namespace WebApplicationTgtNotes.Models
     
     public partial class notifications
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public notifications()
-        {
-            this.app = new HashSet<app>();
-        }
-    
         public int id { get; set; }
         public string content { get; set; }
         public Nullable<System.DateTime> date { get; set; }
+        public int app_id { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<app> app { get; set; }
+        public virtual app app { get; set; }
     }
 }

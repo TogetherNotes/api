@@ -40,8 +40,6 @@
           <Property Name="longitude" Type="decimal" Precision="11" Scale="8" />
           <Property Name="active" Type="bit" />
           <Property Name="language_id" Type="int" />
-          <Property Name="file_id" Type="int" />
-          <Property Name="notification_id" Type="int" />
         </EntityType>
         <EntityType Name="artist_genres">
           <Key>
@@ -84,11 +82,13 @@
         <EntityType Name="files">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="app_id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="name" Type="nvarchar" MaxLength="60" />
           <Property Name="type" Type="nvarchar" MaxLength="20" />
           <Property Name="date" Type="date" />
+          <Property Name="app_id" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="genres">
           <Key>
@@ -137,10 +137,12 @@
         <EntityType Name="notifications">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="app_id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="content" Type="nvarchar" MaxLength="60" />
           <Property Name="date" Type="date" />
+          <Property Name="app_id" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="rating">
           <Key>
@@ -202,18 +204,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_app_file">
-          <End Role="files" Type="Self.files" Multiplicity="0..1" />
-          <End Role="app" Type="Self.app" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="files">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="app">
-              <PropertyRef Name="file_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="fk_app_language">
           <End Role="languages" Type="Self.languages" Multiplicity="0..1" />
           <End Role="app" Type="Self.app" Multiplicity="*" />
@@ -223,18 +213,6 @@
             </Principal>
             <Dependent Role="app">
               <PropertyRef Name="language_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_app_notification">
-          <End Role="notifications" Type="Self.notifications" Multiplicity="0..1" />
-          <End Role="app" Type="Self.app" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="notifications">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="app">
-              <PropertyRef Name="notification_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -312,6 +290,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_file_app">
+          <End Role="app" Type="Self.app" Multiplicity="1" />
+          <End Role="files" Type="Self.files" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="files">
+              <PropertyRef Name="app_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_genre">
           <End Role="genres" Type="Self.genres" Multiplicity="1" />
           <End Role="artist_genres" Type="Self.artist_genres" Multiplicity="*" />
@@ -381,6 +371,18 @@
             </Principal>
             <Dependent Role="messages">
               <PropertyRef Name="chat_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_notifications_app">
+          <End Role="app" Type="Self.app" Multiplicity="1" />
+          <End Role="notifications" Type="Self.notifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notifications">
+              <PropertyRef Name="app_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -473,16 +475,8 @@
             <End Role="roles" EntitySet="roles" />
             <End Role="admin" EntitySet="admin" />
           </AssociationSet>
-          <AssociationSet Name="fk_app_file" Association="Self.fk_app_file">
-            <End Role="files" EntitySet="files" />
-            <End Role="app" EntitySet="app" />
-          </AssociationSet>
           <AssociationSet Name="fk_app_language" Association="Self.fk_app_language">
             <End Role="languages" EntitySet="languages" />
-            <End Role="app" EntitySet="app" />
-          </AssociationSet>
-          <AssociationSet Name="fk_app_notification" Association="Self.fk_app_notification">
-            <End Role="notifications" EntitySet="notifications" />
             <End Role="app" EntitySet="app" />
           </AssociationSet>
           <AssociationSet Name="fk_artist" Association="Self.fk_artist">
@@ -509,6 +503,10 @@
             <End Role="app" EntitySet="app" />
             <End Role="contracts" EntitySet="contracts" />
           </AssociationSet>
+          <AssociationSet Name="fk_file_app" Association="Self.fk_file_app">
+            <End Role="app" EntitySet="app" />
+            <End Role="files" EntitySet="files" />
+          </AssociationSet>
           <AssociationSet Name="fk_genre" Association="Self.fk_genre">
             <End Role="genres" EntitySet="genres" />
             <End Role="artist_genres" EntitySet="artist_genres" />
@@ -532,6 +530,10 @@
           <AssociationSet Name="fk_messages_chat" Association="Self.fk_messages_chat">
             <End Role="chats" EntitySet="chats" />
             <End Role="messages" EntitySet="messages" />
+          </AssociationSet>
+          <AssociationSet Name="fk_notifications_app" Association="Self.fk_notifications_app">
+            <End Role="app" EntitySet="app" />
+            <End Role="notifications" EntitySet="notifications" />
           </AssociationSet>
           <AssociationSet Name="fk_rating_artist" Association="Self.fk_rating_artist">
             <End Role="app" EntitySet="app" />
@@ -589,16 +591,8 @@
             <End Role="admin" EntitySet="admin" />
             <End Role="incidences" EntitySet="incidences" />
           </AssociationSet>
-          <AssociationSet Name="fk_app_file" Association="TgtNotesModel.fk_app_file">
-            <End Role="files" EntitySet="files" />
-            <End Role="app" EntitySet="app" />
-          </AssociationSet>
           <AssociationSet Name="fk_app_language" Association="TgtNotesModel.fk_app_language">
             <End Role="languages" EntitySet="languages" />
-            <End Role="app" EntitySet="app" />
-          </AssociationSet>
-          <AssociationSet Name="fk_app_notification" Association="TgtNotesModel.fk_app_notification">
-            <End Role="notifications" EntitySet="notifications" />
             <End Role="app" EntitySet="app" />
           </AssociationSet>
           <AssociationSet Name="fk_artists_app" Association="TgtNotesModel.fk_artists_app">
@@ -621,6 +615,10 @@
             <End Role="app" EntitySet="app" />
             <End Role="contracts" EntitySet="contracts" />
           </AssociationSet>
+          <AssociationSet Name="fk_file_app" Association="TgtNotesModel.fk_file_app">
+            <End Role="app" EntitySet="app" />
+            <End Role="files" EntitySet="files" />
+          </AssociationSet>
           <AssociationSet Name="fk_incidences_app" Association="TgtNotesModel.fk_incidences_app">
             <End Role="app" EntitySet="app" />
             <End Role="incidences" EntitySet="incidences" />
@@ -632,6 +630,10 @@
           <AssociationSet Name="fk_matches_space" Association="TgtNotesModel.fk_matches_space">
             <End Role="app" EntitySet="app" />
             <End Role="matches" EntitySet="matches" />
+          </AssociationSet>
+          <AssociationSet Name="fk_notifications_app" Association="TgtNotesModel.fk_notifications_app">
+            <End Role="app" EntitySet="app" />
+            <End Role="notifications" EntitySet="notifications" />
           </AssociationSet>
           <AssociationSet Name="fk_rating_artist" Association="TgtNotesModel.fk_rating_artist">
             <End Role="app" EntitySet="app" />
@@ -705,19 +707,17 @@
           <Property Name="longitude" Type="Decimal" Precision="11" Scale="8" />
           <Property Name="active" Type="Boolean" />
           <Property Name="language_id" Type="Int32" />
-          <Property Name="file_id" Type="Int32" />
-          <Property Name="notification_id" Type="Int32" />
-          <NavigationProperty Name="files" Relationship="TgtNotesModel.fk_app_file" FromRole="app" ToRole="files" />
           <NavigationProperty Name="languages" Relationship="TgtNotesModel.fk_app_language" FromRole="app" ToRole="languages" />
-          <NavigationProperty Name="notifications" Relationship="TgtNotesModel.fk_app_notification" FromRole="app" ToRole="notifications" />
           <NavigationProperty Name="artists" Relationship="TgtNotesModel.fk_artists_app" FromRole="app" ToRole="artists" />
           <NavigationProperty Name="chats" Relationship="TgtNotesModel.fk_chats_user1" FromRole="app" ToRole="chats" />
           <NavigationProperty Name="chats1" Relationship="TgtNotesModel.fk_chats_user2" FromRole="app" ToRole="chats" />
           <NavigationProperty Name="contracts" Relationship="TgtNotesModel.fk_contracts_artist" FromRole="app" ToRole="contracts" />
           <NavigationProperty Name="contracts1" Relationship="TgtNotesModel.fk_contracts_space" FromRole="app" ToRole="contracts" />
+          <NavigationProperty Name="files" Relationship="TgtNotesModel.fk_file_app" FromRole="app" ToRole="files" />
           <NavigationProperty Name="incidences" Relationship="TgtNotesModel.fk_incidences_app" FromRole="app" ToRole="incidences" />
           <NavigationProperty Name="matches" Relationship="TgtNotesModel.fk_matches_artist" FromRole="app" ToRole="matches" />
           <NavigationProperty Name="matches1" Relationship="TgtNotesModel.fk_matches_space" FromRole="app" ToRole="matches" />
+          <NavigationProperty Name="notifications" Relationship="TgtNotesModel.fk_notifications_app" FromRole="app" ToRole="notifications" />
           <NavigationProperty Name="rating1" Relationship="TgtNotesModel.fk_rating_artist" FromRole="app" ToRole="rating" />
           <NavigationProperty Name="rating2" Relationship="TgtNotesModel.fk_rating_space" FromRole="app" ToRole="rating" />
           <NavigationProperty Name="spaces" Relationship="TgtNotesModel.fk_spaces_app" FromRole="app" ToRole="spaces" />
@@ -774,12 +774,14 @@
         <EntityType Name="files">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="app_id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="name" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
           <Property Name="type" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="date" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_app_file" FromRole="files" ToRole="app" />
+          <Property Name="app_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_file_app" FromRole="files" ToRole="app" />
         </EntityType>
         <EntityType Name="genres">
           <Key>
@@ -835,11 +837,13 @@
         <EntityType Name="notifications">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="app_id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="content" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
           <Property Name="date" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_app_notification" FromRole="notifications" ToRole="app" />
+          <Property Name="app_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_notifications_app" FromRole="notifications" ToRole="app" />
         </EntityType>
         <EntityType Name="rating">
           <Key>
@@ -919,18 +923,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_app_file">
-          <End Type="TgtNotesModel.files" Role="files" Multiplicity="0..1" />
-          <End Type="TgtNotesModel.app" Role="app" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="files">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="app">
-              <PropertyRef Name="file_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="fk_app_language">
           <End Type="TgtNotesModel.languages" Role="languages" Multiplicity="0..1" />
           <End Type="TgtNotesModel.app" Role="app" Multiplicity="*" />
@@ -940,18 +932,6 @@
             </Principal>
             <Dependent Role="app">
               <PropertyRef Name="language_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_app_notification">
-          <End Type="TgtNotesModel.notifications" Role="notifications" Multiplicity="0..1" />
-          <End Type="TgtNotesModel.app" Role="app" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="notifications">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="app">
-              <PropertyRef Name="notification_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1017,6 +997,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_file_app">
+          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
+          <End Type="TgtNotesModel.files" Role="files" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="files">
+              <PropertyRef Name="app_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_incidences_app">
           <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
           <End Type="TgtNotesModel.incidences" Role="incidences" Multiplicity="*" />
@@ -1050,6 +1042,18 @@
             </Principal>
             <Dependent Role="matches">
               <PropertyRef Name="space_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_notifications_app">
+          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
+          <End Type="TgtNotesModel.notifications" Role="notifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notifications">
+              <PropertyRef Name="app_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1151,7 +1155,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -1183,8 +1187,6 @@
           <EntitySetMapping Name="app">
             <EntityTypeMapping TypeName="TgtNotesModel.app">
               <MappingFragment StoreEntitySet="app">
-                <ScalarProperty Name="notification_id" ColumnName="notification_id" />
-                <ScalarProperty Name="file_id" ColumnName="file_id" />
                 <ScalarProperty Name="language_id" ColumnName="language_id" />
                 <ScalarProperty Name="active" ColumnName="active" />
                 <ScalarProperty Name="longitude" ColumnName="longitude" />
@@ -1239,6 +1241,7 @@
           <EntitySetMapping Name="files">
             <EntityTypeMapping TypeName="TgtNotesModel.files">
               <MappingFragment StoreEntitySet="files">
+                <ScalarProperty Name="app_id" ColumnName="app_id" />
                 <ScalarProperty Name="date" ColumnName="date" />
                 <ScalarProperty Name="type" ColumnName="type" />
                 <ScalarProperty Name="name" ColumnName="name" />
@@ -1296,6 +1299,7 @@
           <EntitySetMapping Name="notifications">
             <EntityTypeMapping TypeName="TgtNotesModel.notifications">
               <MappingFragment StoreEntitySet="notifications">
+                <ScalarProperty Name="app_id" ColumnName="app_id" />
                 <ScalarProperty Name="date" ColumnName="date" />
                 <ScalarProperty Name="content" ColumnName="content" />
                 <ScalarProperty Name="id" ColumnName="id" />
