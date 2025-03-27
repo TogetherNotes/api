@@ -30,18 +30,25 @@ namespace WebApplicationTgtNotes.Controllers
         // GET: api/artists/{id}
         [HttpGet]
         [Route("api/artists/{id}")]
-        [ResponseType(typeof(artists))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getartists(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            artists artists = await db.artists.FindAsync(id);
-            if (artists == null)
+            var artist = await db.artists
+                .Where(a => a.app_user_id == id)
+                .Select(a => new
+                {
+                    a.app_user_id
+                })
+                .FirstOrDefaultAsync();
+
+            if (artist == null)
             {
                 return NotFound();
             }
 
-            return Ok(artists);
+            return Ok(artist);
         }
 
         // PUT: api/artists/5

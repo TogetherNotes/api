@@ -14,21 +14,43 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivity()
+        public IQueryable<object> Getactivity()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.activity;
+
+            return db.activity
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.type,
+                    a.description,
+                    a.date,
+                    a.admin_user_id
+                });
         }
 
         // GET: api/activities{id}
         [HttpGet]
         [Route("api/activities/{id}")]
-        [ResponseType(typeof(activity))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getactivity(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            activity activity = await db.activity.FindAsync(id);
+            var activity = await db.activity
+                .Where(a => a.id == id)
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.type,
+                    a.description,
+                    a.date,
+                    a.admin_user_id
+                })
+                .FirstOrDefaultAsync();
+
             if (activity == null)
             {
                 return NotFound();

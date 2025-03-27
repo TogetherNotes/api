@@ -16,27 +16,43 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/spaces
-        public IQueryable<spaces> Getspaces()
+        public IQueryable<object> Getspaces()
         {
             db.Configuration.LazyLoadingEnabled = false;
-            return db.spaces;
+
+            return db.spaces
+                .Select(s => new
+                {
+                    s.app_user_id,
+                    s.capacity,
+                    s.zip_code
+                });
         }
 
         // GET: api/spaces/{id}
         [HttpGet]
         [Route("api/spaces/{id}")]
-        [ResponseType(typeof(spaces))]
+        [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getspaces(int id)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
-            spaces spaces = await db.spaces.FindAsync(id);
-            if (spaces == null)
+            var space = await db.spaces
+                .Where(s => s.app_user_id == id)
+                .Select(s => new
+                {
+                    s.app_user_id,
+                    s.capacity,
+                    s.zip_code
+                })
+                .FirstOrDefaultAsync();
+
+            if (space == null)
             {
                 return NotFound();
             }
 
-            return Ok(spaces);
+            return Ok(space);
         }
 
         // PUT: api/spaces/5
