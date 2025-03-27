@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/roles/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/roles/{id}")]
         [ResponseType(typeof(roles))]
         public async Task<IHttpActionResult> Getroles(int id)
         {

@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/languages/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/languages/{id}")]
         [ResponseType(typeof(languages))]
         public async Task<IHttpActionResult> Getlanguages(int id)
         {

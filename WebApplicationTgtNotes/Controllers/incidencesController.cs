@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/incidences/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/incidences/{id}")]
         [ResponseType(typeof(incidences))]
         public async Task<IHttpActionResult> Getincidences(int id)
         {

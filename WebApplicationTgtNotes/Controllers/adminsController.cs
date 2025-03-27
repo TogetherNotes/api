@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/admins/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/admins/{id}")]
         [ResponseType(typeof(admin))]
         public async Task<IHttpActionResult> Getadmin(int id)
         {

@@ -124,6 +124,20 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(new { status = "ok", message = "L'usuari s'ha actualitzat correctament" });
         }
 
+        // POST: api/apps/login
+        [HttpPost]
+        [Route("api/apps/login")]
+        public async Task<IHttpActionResult> Login(app creds)
+        {
+            var app = await db.app
+                .Where(a => a.mail == creds.mail && a.password == creds.password && a.active == true)
+                .Select(a => new { a.id, a.name, a.role, a.active })
+                .FirstOrDefaultAsync();
+
+            if (app == null) return NotFound();
+            return Ok(app);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

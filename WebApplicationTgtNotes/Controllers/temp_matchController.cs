@@ -23,7 +23,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/temp_match/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/temp_match/{id}")]
         [ResponseType(typeof(temp_match))]
         public async Task<IHttpActionResult> Gettemp_match(int id)
         {

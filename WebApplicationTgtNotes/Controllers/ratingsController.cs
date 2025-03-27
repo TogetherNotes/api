@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/ratings/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/ratings/{id}")]
         [ResponseType(typeof(rating))]
         public async Task<IHttpActionResult> Getrating(int id)
         {

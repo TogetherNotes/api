@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/chats/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/chats/{id}")]
         [ResponseType(typeof(chats))]
         public async Task<IHttpActionResult> Getchats(int id)
         {

@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/messages/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/messages/{id}")]
         [ResponseType(typeof(messages))]
         public async Task<IHttpActionResult> Getmessages(int id)
         {

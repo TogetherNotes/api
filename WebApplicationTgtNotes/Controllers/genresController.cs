@@ -28,7 +28,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/genres/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/genres/{id}")]
         [ResponseType(typeof(object))]
         public async Task<IHttpActionResult> Getgenres(int id)
         {

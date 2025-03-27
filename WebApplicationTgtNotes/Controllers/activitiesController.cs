@@ -22,7 +22,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/activities{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/activities/{id}")]
         [ResponseType(typeof(activity))]
         public async Task<IHttpActionResult> Getactivity(int id)
         {

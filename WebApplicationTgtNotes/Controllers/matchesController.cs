@@ -23,7 +23,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // GET: api/matches/{id}
         [HttpGet]
-        [Route("api/apps/{id}")]
+        [Route("api/matches/{id}")]
         [ResponseType(typeof(matches))]
         public async Task<IHttpActionResult> Getmatches(int id)
         {
