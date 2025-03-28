@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading;
+using System.Net.Sockets;
 using WebApplicationTgtNotes.DTO;
+using System.Collections.Concurrent;
 using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Sockets
@@ -14,6 +15,7 @@ namespace WebApplicationTgtNotes.Sockets
     {
         private const int Port = 5000;
         private TcpListener _server;
+        private static readonly ConcurrentDictionary<int, TcpClient> ConnectedClients = new ConcurrentDictionary<int, TcpClient>();
 
         public void Start()
         {
@@ -35,81 +37,122 @@ namespace WebApplicationTgtNotes.Sockets
         {
             var client = (TcpClient)obj;
             var stream = client.GetStream();
-            byte[] buffer = new byte[1024];
+            var buffer = new byte[1024];
             int byteCount;
+            int currentUserId = -1;
 
-            while ((byteCount = stream.Read(buffer, 0, buffer.Length)) != 0)
+            try
             {
-                var message = Encoding.UTF8.GetString(buffer, 0, byteCount);
-                Console.WriteLine($"[RECEIVED MESSAGE] {message}");
-
-                SocketsDTO data;
-                try
+                // Primer missatge hauria de ser l'ID del client
+                byteCount = stream.Read(buffer, 0, buffer.Length);
+                var userIdMessage = Encoding.UTF8.GetString(buffer, 0, byteCount);
+                if (!int.TryParse(userIdMessage, out currentUserId))
                 {
-                    data = JsonConvert.DeserializeObject<SocketsDTO>(message);
-                }
-                catch
-                {
-                    Console.WriteLine("[ERROR] Invalid JSON");
-                    SendResponse(stream, "Invalid message format");
-                    continue;
+                    SendResponse(stream, "Invalid user ID");
+                    return;
                 }
 
-                if (data.sender_id <= 0 || data.receiver_id <= 0 || string.IsNullOrWhiteSpace(data.content))
-                {
-                    Console.WriteLine("[ERROR] Missing fields");
-                    SendResponse(stream, "Missing required fields");
-                    continue;
-                }
+                ConnectedClients[currentUserId] = client;
+                Console.WriteLine($"[INFO] User {currentUserId} connected");
 
+                // Enviar missatges pendents
                 using (var db = new TgtNotesEntities())
                 {
-                    if (!db.app.Any(a => a.id == data.sender_id) || !db.app.Any(a => a.id == data.receiver_id))
+                    var pendingMessages = db.messages
+                        .Where(m => m.chats.user1_id == currentUserId || m.chats.user2_id == currentUserId)
+                        .Where(m => m.sender_id != currentUserId && (m.is_read ?? false) == false)
+                        .ToList();
+
+                    foreach (var msg in pendingMessages)
                     {
-                        Console.WriteLine("[ERROR] Invalid users");
-                        SendResponse(stream, "Invalid user IDs");
+                        SendResponse(stream, JsonConvert.SerializeObject(new
+                        {
+                            from = msg.sender_id,
+                            content = msg.content,
+                            sent = msg.send_at
+                        }));
+
+                        msg.is_read = true;
+                    }
+                    db.SaveChanges();
+                }
+
+                // Loop de recepció de missatges
+                while ((byteCount = stream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    var message = Encoding.UTF8.GetString(buffer, 0, byteCount);
+                    Console.WriteLine($"[RECEIVED] {message}");
+
+                    var data = JsonConvert.DeserializeObject<SocketsDTO>(message);
+
+                    if (data == null || data.sender_id <= 0 || data.receiver_id <= 0 || string.IsNullOrWhiteSpace(data.content))
+                    {
+                        SendResponse(stream, "Invalid message format");
                         continue;
                     }
 
-                    var chat = db.chats.FirstOrDefault(c =>
-                        (c.user1_id == data.sender_id && c.user2_id == data.receiver_id) ||
-                        (c.user1_id == data.receiver_id && c.user2_id == data.sender_id));
-
-                    if (chat == null)
+                    using (var db = new TgtNotesEntities())
                     {
-                        chat = new chats
+                        var chat = db.chats.FirstOrDefault(c =>
+                            (c.user1_id == data.sender_id && c.user2_id == data.receiver_id) ||
+                            (c.user1_id == data.receiver_id && c.user2_id == data.sender_id));
+
+                        if (chat == null)
                         {
-                            date = DateTime.Now,
-                            user1_id = data.sender_id,
-                            user2_id = data.receiver_id
+                            chat = new chats
+                            {
+                                date = DateTime.Now,
+                                user1_id = data.sender_id,
+                                user2_id = data.receiver_id
+                            };
+                            db.chats.Add(chat);
+                            db.SaveChanges();
+                        }
+
+                        var newMessage = new messages
+                        {
+                            sender_id = data.sender_id,
+                            content = data.content,
+                            send_at = DateTime.Now,
+                            is_read = false,
+                            chat_id = chat.id
                         };
-                        db.chats.Add(chat);
+                        db.messages.Add(newMessage);
                         db.SaveChanges();
                     }
 
-                    db.messages.Add(new messages
+                    // Si el receptor està connectat, envia-li el missatge
+                    if (ConnectedClients.TryGetValue(data.receiver_id, out var receiverClient))
                     {
-                        sender_id = data.sender_id,
-                        content = data.content,
-                        send_at = DateTime.Now,
-                        is_read = false,
-                        chat_id = chat.id
-                    });
-
-                    db.SaveChanges();
-                    Console.WriteLine("[OK] Message saved to DB");
-                    SendResponse(stream, "Message received and stored");
+                        var receiverStream = receiverClient.GetStream();
+                        SendResponse(receiverStream, JsonConvert.SerializeObject(new
+                        {
+                            from = data.sender_id,
+                            content = data.content
+                        }));
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] {ex.Message}");
+            }
+            finally
+            {
+                if (currentUserId > 0)
+                {
+                    ConnectedClients.TryRemove(currentUserId, out _);
+                    Console.WriteLine($"[INFO] User {currentUserId} disconnected");
+                }
 
-            Console.WriteLine("[SERVER] Client disconnected.");
-            client.Close();
+                client.Close();
+            }
         }
 
         private void SendResponse(NetworkStream stream, string message)
         {
-            byte[] responseBytes = Encoding.UTF8.GetBytes(message);
-            stream.Write(responseBytes, 0, responseBytes.Length);
+            var response = Encoding.UTF8.GetBytes(message);
+            stream.Write(response, 0, response.Length);
         }
     }
 }
