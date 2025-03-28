@@ -1,26 +1,29 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
+using WebApplicationTgtNotes.DTO;
 using WebApplicationTgtNotes.Models;
-using System.Linq;
 
-namespace WebApplicationTgtNotes.DTO
+namespace WebApplicationTgtNotes.Sockets
 {
-    class SocketsDTO
+    public class ChatManager
     {
-        static void Main(string[] args)
+        private const int Port = 5000;
+        private TcpListener _server;
+
+        public void Start()
         {
-            const int port = 5000;
-            var server = new TcpListener(IPAddress.Any, port);
-            server.Start();
-            Console.WriteLine($"[SERVER] Listening on port {port}...");
+            _server = new TcpListener(IPAddress.Any, Port);
+            _server.Start();
+            Console.WriteLine($"[SERVER] Listening on port {Port}...");
 
             while (true)
             {
-                TcpClient client = server.AcceptTcpClient();
+                TcpClient client = _server.AcceptTcpClient();
                 Console.WriteLine("[SERVER] Client connected.");
 
                 Thread clientThread = new Thread(HandleClient);
@@ -28,11 +31,10 @@ namespace WebApplicationTgtNotes.DTO
             }
         }
 
-        static void HandleClient(object obj)
+        private void HandleClient(object obj)
         {
             var client = (TcpClient)obj;
             var stream = client.GetStream();
-
             byte[] buffer = new byte[1024];
             int byteCount;
 
@@ -46,7 +48,7 @@ namespace WebApplicationTgtNotes.DTO
                 {
                     data = JsonConvert.DeserializeObject<SocketsDTO>(message);
                 }
-                catch (Exception)
+                catch
                 {
                     Console.WriteLine("[ERROR] Invalid JSON");
                     SendResponse(stream, "Invalid message format");
@@ -62,10 +64,9 @@ namespace WebApplicationTgtNotes.DTO
 
                 using (var db = new TgtNotesEntities())
                 {
-                    if (!db.app.Any(a => a.id == data.sender_id) ||
-                        !db.app.Any(a => a.id == data.receiver_id))
+                    if (!db.app.Any(a => a.id == data.sender_id) || !db.app.Any(a => a.id == data.receiver_id))
                     {
-                        Console.WriteLine("[ERROR] Sender or Receiver not found");
+                        Console.WriteLine("[ERROR] Invalid users");
                         SendResponse(stream, "Invalid user IDs");
                         continue;
                     }
@@ -86,19 +87,17 @@ namespace WebApplicationTgtNotes.DTO
                         db.SaveChanges();
                     }
 
-                    var newMessage = new messages
+                    db.messages.Add(new messages
                     {
                         sender_id = data.sender_id,
                         content = data.content,
                         send_at = DateTime.Now,
                         is_read = false,
                         chat_id = chat.id
-                    };
+                    });
 
-                    db.messages.Add(newMessage);
                     db.SaveChanges();
-
-                    Console.WriteLine("[OK] Message saved to database");
+                    Console.WriteLine("[OK] Message saved to DB");
                     SendResponse(stream, "Message received and stored");
                 }
             }
@@ -107,7 +106,7 @@ namespace WebApplicationTgtNotes.DTO
             client.Close();
         }
 
-        static void SendResponse(NetworkStream stream, string message)
+        private void SendResponse(NetworkStream stream, string message)
         {
             byte[] responseBytes = Encoding.UTF8.GetBytes(message);
             stream.Write(responseBytes, 0, responseBytes.Length);
