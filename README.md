@@ -40,6 +40,6 @@ Feel free to fork the repository, submit issues, or create pull requests to cont
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
+### Contact
 
 If you have any questions or suggestions, feel free to contact us at 148581386+rwxce@users.noreply.github.com.
