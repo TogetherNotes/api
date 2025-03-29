@@ -191,6 +191,7 @@
     <Compile Include="Controllers\rolesController.cs" />
     <Compile Include="Controllers\spacesController.cs" />
     <Compile Include="Controllers\temp_matchController.cs" />
+    <Compile Include="DTO\AuthDTO.cs" />
     <Compile Include="DTO\SocketsDTO.cs" />
     <Compile Include="DTO\UserRegisterDTO.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />

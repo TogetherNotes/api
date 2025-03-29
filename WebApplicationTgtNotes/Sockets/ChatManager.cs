@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
-using System.Text;
-using Newtonsoft.Json;
-using System.Threading;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using WebApplicationTgtNotes.DTO;
-using System.Collections.Concurrent;
 using WebApplicationTgtNotes.Models;
 
 namespace WebApplicationTgtNotes.Sockets
@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Sockets
     {
         private const int Port = 5000;
         private TcpListener _server;
+
+        // Emmagatzemar usuaris connectats
         private static readonly ConcurrentDictionary<int, TcpClient> ConnectedClients = new ConcurrentDictionary<int, TcpClient>();
 
         public void Start()
@@ -43,41 +45,33 @@ namespace WebApplicationTgtNotes.Sockets
 
             try
             {
-                // Primer missatge hauria de ser l'ID del client
+                // Rebre primer missatge JSON amb l'autenticació
                 byteCount = stream.Read(buffer, 0, buffer.Length);
-                var userIdMessage = Encoding.UTF8.GetString(buffer, 0, byteCount);
-                if (!int.TryParse(userIdMessage, out currentUserId))
+                var authJson = Encoding.UTF8.GetString(buffer, 0, byteCount);
+                var authData = JsonConvert.DeserializeObject<AuthDTO>(authJson);
+
+                if (authData == null || authData.type != "auth" || authData.userId <= 0)
                 {
-                    SendResponse(stream, "Invalid user ID");
+                    SendResponse(stream, "Invalid auth format");
                     return;
                 }
 
+                // Validar que l'usuari existeix a la base de dades
+                using (var db = new TgtNotesEntities())
+                {
+                    if (!db.app.Any(a => a.id == authData.userId))
+                    {
+                        SendResponse(stream, "User does not exist");
+                        return;
+                    }
+                }
+
+                // Creació de la connexió
+                currentUserId = authData.userId;
                 ConnectedClients[currentUserId] = client;
                 Console.WriteLine($"[INFO] User {currentUserId} connected");
 
-                // Enviar missatges pendents
-                using (var db = new TgtNotesEntities())
-                {
-                    var pendingMessages = db.messages
-                        .Where(m => m.chats.user1_id == currentUserId || m.chats.user2_id == currentUserId)
-                        .Where(m => m.sender_id != currentUserId && (m.is_read ?? false) == false)
-                        .ToList();
-
-                    foreach (var msg in pendingMessages)
-                    {
-                        SendResponse(stream, JsonConvert.SerializeObject(new
-                        {
-                            from = msg.sender_id,
-                            content = msg.content,
-                            sent = msg.send_at
-                        }));
-
-                        msg.is_read = true;
-                    }
-                    db.SaveChanges();
-                }
-
-                // Loop de recepció de missatges
+                // Bucle de recepció de missatges
                 while ((byteCount = stream.Read(buffer, 0, buffer.Length)) != 0)
                 {
                     var message = Encoding.UTF8.GetString(buffer, 0, byteCount);
@@ -85,14 +79,16 @@ namespace WebApplicationTgtNotes.Sockets
 
                     var data = JsonConvert.DeserializeObject<SocketsDTO>(message);
 
-                    if (data == null || data.sender_id <= 0 || data.receiver_id <= 0 || string.IsNullOrWhiteSpace(data.content))
+                    // Comprovació d'spoofing
+                    if (data == null || data.sender_id != currentUserId || data.receiver_id <= 0 || string.IsNullOrWhiteSpace(data.content))
                     {
-                        SendResponse(stream, "Invalid message format");
+                        SendResponse(stream, "Invalid or spoofed message");
                         continue;
                     }
 
                     using (var db = new TgtNotesEntities())
                     {
+                        // Comprovar o crear xat
                         var chat = db.chats.FirstOrDefault(c =>
                             (c.user1_id == data.sender_id && c.user2_id == data.receiver_id) ||
                             (c.user1_id == data.receiver_id && c.user2_id == data.sender_id));
@@ -109,6 +105,7 @@ namespace WebApplicationTgtNotes.Sockets
                             db.SaveChanges();
                         }
 
+                        // Crear i guardar missatge
                         var newMessage = new messages
                         {
                             sender_id = data.sender_id,
@@ -124,12 +121,20 @@ namespace WebApplicationTgtNotes.Sockets
                     // Si el receptor està connectat, envia-li el missatge
                     if (ConnectedClients.TryGetValue(data.receiver_id, out var receiverClient))
                     {
-                        var receiverStream = receiverClient.GetStream();
-                        SendResponse(receiverStream, JsonConvert.SerializeObject(new
+                        try
                         {
-                            from = data.sender_id,
-                            content = data.content
-                        }));
+                            var receiverStream = receiverClient.GetStream();
+                            SendResponse(receiverStream, JsonConvert.SerializeObject(new
+                            {
+                                from = data.sender_id,
+                                content = data.content
+                            }));
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine($"[ERROR] Failed to send message to user {data.receiver_id}. Removing from active clients.");
+                            ConnectedClients.TryRemove(data.receiver_id, out _); // Esborra el client si ha fallat
+                        }
                     }
                 }
             }
