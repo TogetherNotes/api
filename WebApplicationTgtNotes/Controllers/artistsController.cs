@@ -51,39 +51,33 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(artist);
         }
 
-        // PUT: api/artists/5
+        // PUT: api/artists/{id}
+        [HttpPut]
+        [Route("api/artists/{id}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putartists(int id, artists artists)
+        public async Task<IHttpActionResult> Putartists(int id, artists artistUpdate)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != artists.app_user_id)
-            {
-                return BadRequest();
-            }
+            if (id != artistUpdate.app_user_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(artists).State = EntityState.Modified;
+            var artist = await db.artists.FindAsync(id);
+            if (artist == null)
+                return NotFound();
+
+            // De moment només hi ha l'id
 
             try
             {
                 await db.SaveChangesAsync();
+                return Ok(new { status = "ok", message = "Artista actualitzat correctament" });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!artistsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/artists/register
