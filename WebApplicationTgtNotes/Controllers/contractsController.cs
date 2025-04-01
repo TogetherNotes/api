@@ -125,7 +125,7 @@ namespace WebApplicationTgtNotes.Controllers
 
         // DELETE: api/contracts/{artist_id}/{space_id}/{init_hour}/{end_hour}
         [HttpDelete]
-        [Route("api/contracts/{artist_id:int}/{space_id:int}/{init_hour:datetimeoffset}/{end_hour:datetimeoffset}")]
+        [Route("api/contracts/{artist_id:int}/{space_id:int}/{init_hour}/{end_hour}")]
         [ResponseType(typeof(contracts))]
         public async Task<IHttpActionResult> Deletecontracts(int artist_id, int space_id, DateTimeOffset init_hour, DateTimeOffset end_hour)
         {
