@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -64,85 +65,78 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(contract);
         }
 
-        // PUT: api/contracts/5
+        // PUT: api/contracts/{artist_id}/{space_id}
+        [HttpPut]
+        [Route("api/contracts/{artist_id:int}/{space_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putcontracts(int id, contracts contracts)
+        public async Task<IHttpActionResult> Putcontracts(int artist_id, int space_id, contracts contractData)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != contracts.artist_id)
-            {
-                return BadRequest();
-            }
+            if (artist_id != contractData.artist_id || space_id != contractData.space_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(contracts).State = EntityState.Modified;
+            var existing = await db.contracts
+                .FirstOrDefaultAsync(c => c.artist_id == artist_id && c.space_id == space_id &&
+                                          c.init_hour == contractData.init_hour && c.end_hour == contractData.end_hour);
+
+            if (existing == null)
+                return NotFound();
+
+            existing.meet_type = contractData.meet_type;
+            existing.status = contractData.status;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!contractsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/contracts
+        [HttpPost]
+        [Route("api/contracts")]
         [ResponseType(typeof(contracts))]
-        public async Task<IHttpActionResult> Postcontracts(contracts contracts)
+        public async Task<IHttpActionResult> Postcontracts(contracts contract)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            db.contracts.Add(contracts);
+            var exists = await db.contracts.FindAsync(contract.artist_id, contract.space_id, contract.init_hour, contract.end_hour);
+            if (exists != null)
+                return Conflict();
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (contractsExists(contracts.artist_id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = contracts.artist_id }, contracts);
-        }
-
-        // DELETE: api/contracts/5
-        [ResponseType(typeof(contracts))]
-        public async Task<IHttpActionResult> Deletecontracts(int id)
-        {
-            contracts contracts = await db.contracts.FindAsync(id);
-            if (contracts == null)
-            {
-                return NotFound();
-            }
-
-            db.contracts.Remove(contracts);
+            db.contracts.Add(contract);
             await db.SaveChangesAsync();
 
-            return Ok(contracts);
+            return CreatedAtRoute("DefaultApi", new
+            {
+                artist_id = contract.artist_id,
+                space_id = contract.space_id,
+                init_hour = contract.init_hour,
+                end_hour = contract.end_hour
+            }, contract);
+        }
+
+        // DELETE: api/contracts/{artist_id}/{space_id}/{init_hour}/{end_hour}
+        [HttpDelete]
+        [Route("api/contracts/{artist_id:int}/{space_id:int}/{init_hour:datetimeoffset}/{end_hour:datetimeoffset}")]
+        [ResponseType(typeof(contracts))]
+        public async Task<IHttpActionResult> Deletecontracts(int artist_id, int space_id, DateTimeOffset init_hour, DateTimeOffset end_hour)
+        {
+            var contract = await db.contracts.FindAsync(artist_id, space_id, init_hour, end_hour);
+            if (contract == null)
+                return NotFound();
+
+            db.contracts.Remove(contract);
+            await db.SaveChangesAsync();
+
+            return Ok(contract);
         }
 
         protected override void Dispose(bool disposing)
@@ -152,11 +146,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool contractsExists(int id)
-        {
-            return db.contracts.Count(e => e.artist_id == id) > 0;
         }
     }
 }

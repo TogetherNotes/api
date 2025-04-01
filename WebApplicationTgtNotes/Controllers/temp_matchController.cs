@@ -64,49 +64,47 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(tempMatch);
         }
 
-        // PUT: api/temp_match/5
+        // PUT: api/temp_match/{artist_id}/{space_id}
+        [HttpPut]
+        [Route("api/temp_match/{artist_id:int}/{space_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Puttemp_match(int id, temp_match temp_match)
+        public async Task<IHttpActionResult> Puttemp_match(int artist_id, int space_id, temp_match temp_match)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != temp_match.artist_id)
-            {
-                return BadRequest();
-            }
+            if (artist_id != temp_match.artist_id || space_id != temp_match.space_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(temp_match).State = EntityState.Modified;
+            var existing = await db.temp_match.FindAsync(artist_id, space_id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzar camps editables
+            existing.artist_like = temp_match.artist_like;
+            existing.space_like = temp_match.space_like;
+            existing.status = temp_match.status;
+            existing.request_date = temp_match.request_date;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!temp_matchExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/temp_match
+        [HttpPost]
+        [Route("api/temp_match")]
         [ResponseType(typeof(temp_match))]
         public async Task<IHttpActionResult> Posttemp_match(temp_match temp_match)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.temp_match.Add(temp_match);
 
@@ -116,28 +114,25 @@ namespace WebApplicationTgtNotes.Controllers
             }
             catch (DbUpdateException)
             {
-                if (temp_matchExists(temp_match.artist_id))
-                {
+                var exists = await db.temp_match.FindAsync(temp_match.artist_id, temp_match.space_id);
+                if (exists != null)
                     return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = temp_match.artist_id }, temp_match);
+            return CreatedAtRoute("DefaultApi", new { artist_id = temp_match.artist_id, space_id = temp_match.space_id }, temp_match);
         }
 
-        // DELETE: api/temp_match/5
+        // DELETE: api/temp_match/{artist_id}/{space_id}
+        [HttpDelete]
+        [Route("api/temp_match/{artist_id:int}/{space_id:int}")]
         [ResponseType(typeof(temp_match))]
-        public async Task<IHttpActionResult> Deletetemp_match(int id)
+        public async Task<IHttpActionResult> Deletetemp_match(int artist_id, int space_id)
         {
-            temp_match temp_match = await db.temp_match.FindAsync(id);
+            var temp_match = await db.temp_match.FindAsync(artist_id, space_id);
             if (temp_match == null)
-            {
                 return NotFound();
-            }
 
             db.temp_match.Remove(temp_match);
             await db.SaveChangesAsync();
@@ -152,11 +147,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool temp_matchExists(int id)
-        {
-            return db.temp_match.Count(e => e.artist_id == id) > 0;
         }
     }
 }

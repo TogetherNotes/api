@@ -60,85 +60,76 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(incidence);
         }
 
-        // PUT: api/incidences/5
+        // PUT: api/incidences/{app_user_id}/{admin_user_id}
+        [HttpPut]
+        [Route("api/incidences/{app_user_id:int}/{admin_user_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putincidences(int id, incidences incidences)
+        public async Task<IHttpActionResult> Putincidences(int app_user_id, int admin_user_id, incidences incidences)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != incidences.app_user_id)
-            {
-                return BadRequest();
-            }
+            if (app_user_id != incidences.app_user_id || admin_user_id != incidences.admin_user_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(incidences).State = EntityState.Modified;
+            var existing = await db.incidences.FindAsync(app_user_id, admin_user_id);
+            if (existing == null)
+                return NotFound();
+
+            existing.description = incidences.description;
+            existing.status = incidences.status;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!incidencesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/incidences
+        [HttpPost]
+        [Route("api/incidences")]
         [ResponseType(typeof(incidences))]
         public async Task<IHttpActionResult> Postincidences(incidences incidences)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.incidences.Add(incidences);
 
             try
             {
                 await db.SaveChangesAsync();
+                return CreatedAtRoute("DefaultApi", new
+                {
+                    app_user_id = incidences.app_user_id,
+                    admin_user_id = incidences.admin_user_id
+                }, incidences);
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                if (incidencesExists(incidences.app_user_id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex); // o Conflict() si ho vols controlar
             }
-
-            return CreatedAtRoute("DefaultApi", new { id = incidences.app_user_id }, incidences);
         }
 
-        // DELETE: api/incidences/5
+        // DELETE: api/incidences/{app_user_id}/{admin_user_id}
+        [HttpDelete]
+        [Route("api/incidences/{app_user_id:int}/{admin_user_id:int}")]
         [ResponseType(typeof(incidences))]
-        public async Task<IHttpActionResult> Deleteincidences(int id)
+        public async Task<IHttpActionResult> Deleteincidences(int app_user_id, int admin_user_id)
         {
-            incidences incidences = await db.incidences.FindAsync(id);
-            if (incidences == null)
-            {
+            var incidence = await db.incidences.FindAsync(app_user_id, admin_user_id);
+            if (incidence == null)
                 return NotFound();
-            }
 
-            db.incidences.Remove(incidences);
+            db.incidences.Remove(incidence);
             await db.SaveChangesAsync();
 
-            return Ok(incidences);
+            return Ok(incidence);
         }
 
         protected override void Dispose(bool disposing)
@@ -148,11 +139,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool incidencesExists(int id)
-        {
-            return db.incidences.Count(e => e.app_user_id == id) > 0;
         }
     }
 }

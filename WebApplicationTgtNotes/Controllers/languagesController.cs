@@ -56,49 +56,43 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(language);
         }
 
-        // PUT: api/languages/5
+        // PUT: api/languages/{id}
+        [HttpPut]
+        [Route("api/languages/{id}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putlanguages(int id, languages languages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != languages.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(languages).State = EntityState.Modified;
+            var existing = await db.languages.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.name = languages.name;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!languagesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/languages
+        [HttpPost]
+        [Route("api/languages")]
         [ResponseType(typeof(languages))]
         public async Task<IHttpActionResult> Postlanguages(languages languages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.languages.Add(languages);
             await db.SaveChangesAsync();
@@ -106,20 +100,20 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = languages.id }, languages);
         }
 
-        // DELETE: api/languages/5
+        // DELETE: api/languages/{id}
+        [HttpDelete]
+        [Route("api/languages/{id}")]
         [ResponseType(typeof(languages))]
         public async Task<IHttpActionResult> Deletelanguages(int id)
         {
-            languages languages = await db.languages.FindAsync(id);
-            if (languages == null)
-            {
+            var language = await db.languages.FindAsync(id);
+            if (language == null)
                 return NotFound();
-            }
 
-            db.languages.Remove(languages);
+            db.languages.Remove(language);
             await db.SaveChangesAsync();
 
-            return Ok(languages);
+            return Ok(language);
         }
 
         protected override void Dispose(bool disposing)
@@ -129,11 +123,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool languagesExists(int id)
-        {
-            return db.languages.Count(e => e.id == id) > 0;
         }
     }
 }

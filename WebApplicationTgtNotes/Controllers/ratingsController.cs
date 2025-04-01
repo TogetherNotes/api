@@ -60,49 +60,46 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(rating);
         }
 
-        // PUT: api/ratings/5
+        // PUT: api/ratings/{id}
+        [HttpPut]
+        [Route("api/ratings/{id:int}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putrating(int id, rating rating)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != rating.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(rating).State = EntityState.Modified;
+            var existing = await db.rating.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzem només els camps modificables
+            existing.rating1 = rating.rating1;
+            existing.artist_id = rating.artist_id;
+            existing.space_id = rating.space_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!ratingExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/ratings
+        [HttpPost]
+        [Route("api/ratings")]
         [ResponseType(typeof(rating))]
         public async Task<IHttpActionResult> Postrating(rating rating)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.rating.Add(rating);
             await db.SaveChangesAsync();
@@ -110,15 +107,15 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = rating.id }, rating);
         }
 
-        // DELETE: api/ratings/5
+        // DELETE: api/ratings/{id}
+        [HttpDelete]
+        [Route("api/ratings/{id:int}")]
         [ResponseType(typeof(rating))]
         public async Task<IHttpActionResult> Deleterating(int id)
         {
-            rating rating = await db.rating.FindAsync(id);
+            var rating = await db.rating.FindAsync(id);
             if (rating == null)
-            {
                 return NotFound();
-            }
 
             db.rating.Remove(rating);
             await db.SaveChangesAsync();
@@ -133,11 +130,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool ratingExists(int id)
-        {
-            return db.rating.Count(e => e.id == id) > 0;
         }
     }
 }

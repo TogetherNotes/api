@@ -66,49 +66,48 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(message);
         }
 
-        // PUT: api/messages/5
+        // PUT: api/messages/{id}
+        [HttpPut]
+        [Route("api/messages/{id:int}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putmessages(int id, messages messages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != messages.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(messages).State = EntityState.Modified;
+            var existing = await db.messages.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzem només els camps modificables
+            existing.sender_id = messages.sender_id;
+            existing.content = messages.content;
+            existing.send_at = messages.send_at;
+            existing.is_read = messages.is_read;
+            existing.chat_id = messages.chat_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!messagesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/messages
+        [HttpPost]
+        [Route("api/messages")]
         [ResponseType(typeof(messages))]
         public async Task<IHttpActionResult> Postmessages(messages messages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.messages.Add(messages);
             await db.SaveChangesAsync();
@@ -116,20 +115,20 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = messages.id }, messages);
         }
 
-        // DELETE: api/messages/5
+        // DELETE: api/messages/{id}
+        [HttpDelete]
+        [Route("api/messages/{id:int}")]
         [ResponseType(typeof(messages))]
         public async Task<IHttpActionResult> Deletemessages(int id)
         {
-            messages messages = await db.messages.FindAsync(id);
-            if (messages == null)
-            {
+            var message = await db.messages.FindAsync(id);
+            if (message == null)
                 return NotFound();
-            }
 
-            db.messages.Remove(messages);
+            db.messages.Remove(message);
             await db.SaveChangesAsync();
 
-            return Ok(messages);
+            return Ok(message);
         }
 
         protected override void Dispose(bool disposing)
@@ -139,11 +138,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool messagesExists(int id)
-        {
-            return db.messages.Count(e => e.id == id) > 0;
         }
     }
 }

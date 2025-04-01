@@ -105,16 +105,9 @@ namespace WebApplicationTgtNotes.Controllers
             {
                 await db.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!appExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
 
             return Ok(new { status = "ok", message = "L'usuari s'ha actualitzat correctament" });
@@ -176,11 +169,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool appExists(int id)
-        {
-            return db.app.Count(e => e.id == id) > 0;
         }
     }
 }

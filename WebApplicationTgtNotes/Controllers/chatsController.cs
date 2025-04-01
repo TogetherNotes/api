@@ -60,70 +60,67 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(chat);
         }
 
-        // PUT: api/chats/5
+        // PUT: api/chats/{id}
+        [HttpPut]
+        [Route("api/chats/{id}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putchats(int id, chats chats)
+        public async Task<IHttpActionResult> Putchats(int id, chats chat)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != chats.id)
-            {
-                return BadRequest();
-            }
+            if (id != chat.id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(chats).State = EntityState.Modified;
+            var existing = await db.chats.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzem només els camps modificables
+            existing.date = chat.date;
+            existing.user1_id = chat.user1_id;
+            existing.user2_id = chat.user2_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!chatsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/chats
+        [HttpPost]
+        [Route("api/chats")]
         [ResponseType(typeof(chats))]
-        public async Task<IHttpActionResult> Postchats(chats chats)
+        public async Task<IHttpActionResult> Postchats(chats chat)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            db.chats.Add(chats);
+            db.chats.Add(chat);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = chats.id }, chats);
+            return CreatedAtRoute("DefaultApi", new { id = chat.id }, chat);
         }
 
-        // DELETE: api/chats/5
+        // DELETE: api/chats/{id}
+        [HttpDelete]
+        [Route("api/chats/{id}")]
         [ResponseType(typeof(chats))]
         public async Task<IHttpActionResult> Deletechats(int id)
         {
-            chats chats = await db.chats.FindAsync(id);
-            if (chats == null)
-            {
+            var chat = await db.chats.FindAsync(id);
+            if (chat == null)
                 return NotFound();
-            }
 
-            db.chats.Remove(chats);
+            db.chats.Remove(chat);
             await db.SaveChangesAsync();
 
-            return Ok(chats);
+            return Ok(chat);
         }
 
         protected override void Dispose(bool disposing)
@@ -133,11 +130,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool chatsExists(int id)
-        {
-            return db.chats.Count(e => e.id == id) > 0;
         }
     }
 }

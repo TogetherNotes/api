@@ -64,49 +64,47 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(activity);
         }
 
-        // PUT: api/activities/5
+        // PUT: api/activities/{id}
+        [HttpPut]
+        [Route("api/activities/{id}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putactivity(int id, activity activity)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != activity.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(activity).State = EntityState.Modified;
+            var existing = await db.activity.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.name = activity.name;
+            existing.type = activity.type;
+            existing.description = activity.description;
+            existing.date = activity.date;
+            existing.admin_user_id = activity.admin_user_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!activityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError();
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/activities
+        [HttpPost]
+        [Route("api/activities")]
         [ResponseType(typeof(activity))]
         public async Task<IHttpActionResult> Postactivity(activity activity)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.activity.Add(activity);
             await db.SaveChangesAsync();
@@ -114,15 +112,15 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
         }
 
-        // DELETE: api/activities/5
+        // DELETE: api/activities/{id}
+        [HttpDelete]
+        [Route("api/activities/{id}")]
         [ResponseType(typeof(activity))]
         public async Task<IHttpActionResult> Deleteactivity(int id)
         {
-            activity activity = await db.activity.FindAsync(id);
+            var activity = await db.activity.FindAsync(id);
             if (activity == null)
-            {
                 return NotFound();
-            }
 
             db.activity.Remove(activity);
             await db.SaveChangesAsync();
@@ -137,11 +135,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool activityExists(int id)
-        {
-            return db.activity.Count(e => e.id == id) > 0;
         }
     }
 }

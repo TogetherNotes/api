@@ -55,80 +55,68 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
 
-        // PUT: api/artist_genres/5
+        // PUT: api/artist_genres/{artist_id}/{genre_id}
+        [HttpPut]
+        [Route("api/artist_genres/{artist_id:int}/{genre_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putartist_genres(int id, artist_genres artist_genres)
+        public async Task<IHttpActionResult> Putartist_genres(int artist_id, int genre_id, artist_genres artist_genres)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != artist_genres.artist_id)
-            {
-                return BadRequest();
-            }
+            if (artist_id != artist_genres.artist_id || genre_id != artist_genres.genre_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(artist_genres).State = EntityState.Modified;
+            var existing = await db.artist_genres.FindAsync(artist_id, genre_id);
+            if (existing == null)
+                return NotFound();
+
+            existing.creation_date = artist_genres.creation_date;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!artist_genresExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/artist_genres
+        [HttpPost]
+        [Route("api/artist_genres")]
         [ResponseType(typeof(artist_genres))]
         public async Task<IHttpActionResult> Postartist_genres(artist_genres artist_genres)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+
+            // Comprovar si ja existeix
+            var existing = await db.artist_genres.FindAsync(artist_genres.artist_id, artist_genres.genre_id);
+            if (existing != null)
+                return Conflict();
 
             db.artist_genres.Add(artist_genres);
+            await db.SaveChangesAsync();
 
-            try
+            return CreatedAtRoute("DefaultApi", new
             {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (artist_genresExists(artist_genres.artist_id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = artist_genres.artist_id }, artist_genres);
+                artist_id = artist_genres.artist_id,
+                genre_id = artist_genres.genre_id
+            }, artist_genres);
         }
 
-        // DELETE: api/artist_genres/5
+        // DELETE: api/artist_genres/{artist_id}/{genre_id}
+        [HttpDelete]
+        [Route("api/artist_genres/{artist_id:int}/{genre_id:int}")]
         [ResponseType(typeof(artist_genres))]
-        public async Task<IHttpActionResult> Deleteartist_genres(int id)
+        public async Task<IHttpActionResult> Deleteartist_genres(int artist_id, int genre_id)
         {
-            artist_genres artist_genres = await db.artist_genres.FindAsync(id);
+            var artist_genres = await db.artist_genres.FindAsync(artist_id, genre_id);
             if (artist_genres == null)
-            {
                 return NotFound();
-            }
 
             db.artist_genres.Remove(artist_genres);
             await db.SaveChangesAsync();
@@ -143,11 +131,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool artist_genresExists(int id)
-        {
-            return db.artist_genres.Count(e => e.artist_id == id) > 0;
         }
     }
 }

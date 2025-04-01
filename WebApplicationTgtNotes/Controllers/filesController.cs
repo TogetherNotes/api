@@ -60,70 +60,67 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(file);
         }
 
-        // PUT: api/files/5
+        // PUT: api/files/{id}/{app_id}
+        [HttpPut]
+        [Route("api/files/{id:int}/{app_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putfiles(int id, files files)
+        public async Task<IHttpActionResult> Putfiles(int id, int app_id, files files)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != files.id)
-            {
-                return BadRequest();
-            }
+            if (id != files.id || app_id != files.app_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(files).State = EntityState.Modified;
+            var existing = await db.files.FindAsync(id, app_id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzar camps
+            existing.name = files.name;
+            existing.type = files.type;
+            existing.date = files.date;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!filesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/files
+        [HttpPost]
+        [Route("api/files")]
         [ResponseType(typeof(files))]
         public async Task<IHttpActionResult> Postfiles(files files)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.files.Add(files);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = files.id }, files);
+            return CreatedAtRoute("DefaultApi", new { id = files.id, app_id = files.app_id }, files);
         }
 
-        // DELETE: api/files/5
+        // DELETE: api/files/{id}/{app_id}
+        [HttpDelete]
+        [Route("api/files/{id:int}/{app_id:int}")]
         [ResponseType(typeof(files))]
-        public async Task<IHttpActionResult> Deletefiles(int id)
+        public async Task<IHttpActionResult> Deletefiles(int id, int app_id)
         {
-            files files = await db.files.FindAsync(id);
-            if (files == null)
-            {
+            var file = await db.files.FindAsync(id, app_id);
+            if (file == null)
                 return NotFound();
-            }
 
-            db.files.Remove(files);
+            db.files.Remove(file);
             await db.SaveChangesAsync();
 
-            return Ok(files);
+            return Ok(file);
         }
 
         protected override void Dispose(bool disposing)
@@ -133,11 +130,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool filesExists(int id)
-        {
-            return db.files.Count(e => e.id == id) > 0;
         }
     }
 }

@@ -82,49 +82,46 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(notifications);
         }
 
-        // PUT: api/notifications/5
+        // PUT: api/notifications/{id}
+        [HttpPut]
+        [Route("api/notifications/{id:int}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putnotifications(int id, notifications notifications)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != notifications.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(notifications).State = EntityState.Modified;
+            var existing = await db.notifications.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualitzem només els camps modificables
+            existing.content = notifications.content;
+            existing.date = notifications.date;
+            existing.app_id = notifications.app_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!notificationsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/notifications
+        [HttpPost]
+        [Route("api/notifications")]
         [ResponseType(typeof(notifications))]
         public async Task<IHttpActionResult> Postnotifications(notifications notifications)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.notifications.Add(notifications);
             await db.SaveChangesAsync();
@@ -132,20 +129,20 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = notifications.id }, notifications);
         }
 
-        // DELETE: api/notifications/5
+        // DELETE: api/notifications/{id}
+        [HttpDelete]
+        [Route("api/notifications/{id:int}")]
         [ResponseType(typeof(notifications))]
         public async Task<IHttpActionResult> Deletenotifications(int id)
         {
-            notifications notifications = await db.notifications.FindAsync(id);
-            if (notifications == null)
-            {
+            var notification = await db.notifications.FindAsync(id);
+            if (notification == null)
                 return NotFound();
-            }
 
-            db.notifications.Remove(notifications);
+            db.notifications.Remove(notification);
             await db.SaveChangesAsync();
 
-            return Ok(notifications);
+            return Ok(notification);
         }
 
         protected override void Dispose(bool disposing)
@@ -155,11 +152,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool notificationsExists(int id)
-        {
-            return db.notifications.Count(e => e.id == id) > 0;
         }
     }
 }

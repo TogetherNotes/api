@@ -57,49 +57,44 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(role);
         }
 
-        // PUT: api/roles/5
+        // PUT: api/roles/{id}
+        [HttpPut]
+        [Route("api/roles/{id:int}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putroles(int id, roles roles)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != roles.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(roles).State = EntityState.Modified;
+            var existing = await db.roles.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            // Actualització dels camps editables
+            existing.name = roles.name;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!rolesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/roles
+        [HttpPost]
+        [Route("api/roles")]
         [ResponseType(typeof(roles))]
         public async Task<IHttpActionResult> Postroles(roles roles)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.roles.Add(roles);
             await db.SaveChangesAsync();
@@ -107,15 +102,15 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = roles.id }, roles);
         }
 
-        // DELETE: api/roles/5
+        // DELETE: api/roles/{id}
+        [HttpDelete]
+        [Route("api/roles/{id:int}")]
         [ResponseType(typeof(roles))]
         public async Task<IHttpActionResult> Deleteroles(int id)
         {
-            roles roles = await db.roles.FindAsync(id);
+            var roles = await db.roles.FindAsync(id);
             if (roles == null)
-            {
                 return NotFound();
-            }
 
             db.roles.Remove(roles);
             await db.SaveChangesAsync();
@@ -130,11 +125,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool rolesExists(int id)
-        {
-            return db.roles.Count(e => e.id == id) > 0;
         }
     }
 }

@@ -58,85 +58,75 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(match);
         }
 
-        // PUT: api/matches/5
+        // PUT: api/matches/{artist_id}/{space_id}
+        [HttpPut]
+        [Route("api/matches/{artist_id:int}/{space_id:int}")]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putmatches(int id, matches matches)
+        public async Task<IHttpActionResult> Putmatches(int artist_id, int space_id, matches matches)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != matches.artist_id)
-            {
-                return BadRequest();
-            }
+            if (artist_id != matches.artist_id || space_id != matches.space_id)
+                return BadRequest("ID mismatch");
 
-            db.Entry(matches).State = EntityState.Modified;
+            var existing = await db.matches.FindAsync(artist_id, space_id);
+            if (existing == null)
+                return NotFound();
+
+            existing.match_date = matches.match_date;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!matchesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/matches
+        [HttpPost]
+        [Route("api/matches")]
         [ResponseType(typeof(matches))]
         public async Task<IHttpActionResult> Postmatches(matches matches)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.matches.Add(matches);
 
             try
             {
                 await db.SaveChangesAsync();
+                return CreatedAtRoute("DefaultApi", new { artist_id = matches.artist_id, space_id = matches.space_id }, matches);
             }
             catch (DbUpdateException)
             {
-                if (matchesExists(matches.artist_id))
-                {
+                var exists = await db.matches.FindAsync(matches.artist_id, matches.space_id);
+                if (exists != null)
                     return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return CreatedAtRoute("DefaultApi", new { id = matches.artist_id }, matches);
+                throw;
+            }
         }
 
-        // DELETE: api/matches/5
+        // DELETE: api/matches/{artist_id}/{space_id}
+        [HttpDelete]
+        [Route("api/matches/{artist_id:int}/{space_id:int}")]
         [ResponseType(typeof(matches))]
-        public async Task<IHttpActionResult> Deletematches(int id)
+        public async Task<IHttpActionResult> Deletematches(int artist_id, int space_id)
         {
-            matches matches = await db.matches.FindAsync(id);
-            if (matches == null)
-            {
+            var match = await db.matches.FindAsync(artist_id, space_id);
+            if (match == null)
                 return NotFound();
-            }
 
-            db.matches.Remove(matches);
+            db.matches.Remove(match);
             await db.SaveChangesAsync();
 
-            return Ok(matches);
+            return Ok(match);
         }
 
         protected override void Dispose(bool disposing)
@@ -146,11 +136,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool matchesExists(int id)
-        {
-            return db.matches.Count(e => e.artist_id == id) > 0;
         }
     }
 }

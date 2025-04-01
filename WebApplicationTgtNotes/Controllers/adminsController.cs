@@ -57,49 +57,46 @@ namespace WebApplicationTgtNotes.Controllers
                 return Ok(admin);
         }
 
-        // PUT: api/admins/5
+        // PUT: api/admins/{id}
+        [HttpPut]
+        [Route("api/admins/{id}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putadmin(int id, admin admin)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != admin.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(admin).State = EntityState.Modified;
+            var existing = await db.admin.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.name = admin.name;
+            existing.mail = admin.mail;
+            existing.password = admin.password;
+            existing.role_id = admin.role_id;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!adminExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError();
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/admins
+        [HttpPost]
+        [Route("api/admins")]
         [ResponseType(typeof(admin))]
         public async Task<IHttpActionResult> Postadmin(admin admin)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.admin.Add(admin);
             await db.SaveChangesAsync();
@@ -107,15 +104,15 @@ namespace WebApplicationTgtNotes.Controllers
             return CreatedAtRoute("DefaultApi", new { id = admin.id }, admin);
         }
 
-        // DELETE: api/admins/5
+        // DELETE: api/admins/{id}
+        [HttpDelete]
+        [Route("api/admins/{id}")]
         [ResponseType(typeof(admin))]
         public async Task<IHttpActionResult> Deleteadmin(int id)
         {
-            admin admin = await db.admin.FindAsync(id);
+            var admin = await db.admin.FindAsync(id);
             if (admin == null)
-            {
                 return NotFound();
-            }
 
             db.admin.Remove(admin);
             await db.SaveChangesAsync();
@@ -130,11 +127,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool adminExists(int id)
-        {
-            return db.admin.Count(e => e.id == id) > 0;
         }
     }
 }

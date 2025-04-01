@@ -52,48 +52,42 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // PUT: api/genres/{id}
+        [HttpPut]
+        [Route("api/genres/{id:int}")]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putgenres(int id, genres genres)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != genres.id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID mismatch");
 
-            db.Entry(genres).State = EntityState.Modified;
+            var existing = await db.genres.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.name = genres.name;
 
             try
             {
                 await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!genresExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/genres
+        [HttpPost]
+        [Route("api/genres")]
         [ResponseType(typeof(genres))]
         public async Task<IHttpActionResult> Postgenres(genres genres)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             db.genres.Add(genres);
             await db.SaveChangesAsync();
@@ -102,19 +96,19 @@ namespace WebApplicationTgtNotes.Controllers
         }
 
         // DELETE: api/genres/{id}
+        [HttpDelete]
+        [Route("api/genres/{id:int}")]
         [ResponseType(typeof(genres))]
         public async Task<IHttpActionResult> Deletegenres(int id)
         {
-            genres genres = await db.genres.FindAsync(id);
-            if (genres == null)
-            {
+            var genre = await db.genres.FindAsync(id);
+            if (genre == null)
                 return NotFound();
-            }
 
-            db.genres.Remove(genres);
+            db.genres.Remove(genre);
             await db.SaveChangesAsync();
 
-            return Ok(genres);
+            return Ok(genre);
         }
 
         protected override void Dispose(bool disposing)
@@ -124,11 +118,6 @@ namespace WebApplicationTgtNotes.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool genresExists(int id)
-        {
-            return db.genres.Count(e => e.id == id) > 0;
         }
     }
 }
