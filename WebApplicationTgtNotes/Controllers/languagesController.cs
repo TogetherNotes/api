@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/languages
+        [HttpGet]
+        [Route("api/languages")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getlanguages()
         {

@@ -14,6 +14,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/artists
+        [HttpGet]
+        [Route("api/artists")]
         public IQueryable<object> Getartists()
         {
             db.Configuration.LazyLoadingEnabled = false;

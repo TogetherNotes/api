@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/ratings
+        [HttpGet]
+        [Route("api/ratings")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getrating()
         {

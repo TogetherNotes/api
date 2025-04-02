@@ -14,6 +14,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/spaces
+        [HttpGet]
+        [Route("api/spaces")]
         public IQueryable<object> Getspaces()
         {
             db.Configuration.LazyLoadingEnabled = false;

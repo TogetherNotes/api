@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/incidences
+        [HttpGet]
+        [Route("api/incidences")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getincidences()
         {

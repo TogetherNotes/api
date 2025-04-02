@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/apps
+        [HttpGet]
+        [Route("api/apps")]
         public IQueryable<object> Getapp()
         {
             db.Configuration.LazyLoadingEnabled = false;

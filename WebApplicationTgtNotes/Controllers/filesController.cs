@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/files
+        [HttpGet]
+        [Route("api/files")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getfiles()
         {

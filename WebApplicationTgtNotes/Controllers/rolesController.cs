@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/roles
+        [HttpGet]
+        [Route("api/roles")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getroles()
         {

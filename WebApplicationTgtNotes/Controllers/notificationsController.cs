@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/notifications
+        [HttpGet]
+        [Route("api/notifications")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getnotifications()
         {

@@ -15,6 +15,8 @@ namespace WebApplicationTgtNotes.Controllers
         private TgtNotesEntities db = new TgtNotesEntities();
 
         // GET: api/matches
+        [HttpGet]
+        [Route("api/matches")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> Getmatches()
         {
