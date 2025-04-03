@@ -140,10 +140,14 @@ namespace WebApplicationTgtNotes.Controllers
                 {
                     a.id,
                     a.name,
+                    a.mail,
+                    a.password,
+                    a.role,
+                    a.rating,
                     a.latitude,
                     a.longitude,
-                    a.role,
-                    a.rating
+                    a.active,
+                    a.language_id
                 })
                 .ToListAsync();
 
