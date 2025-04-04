@@ -70,6 +70,45 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(app);
         }
 
+        // GET: api/apps/location?lat=41.3851&lng=2.1734&radiusKm=10
+        [HttpGet]
+        [Route("api/apps/location")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetAppsByLocation(double lat, double lng, double radiusKm)
+        {
+            db.Configuration.LazyLoadingEnabled = false;
+
+            const double EarthRadiusKm = 6371.0;
+            double deltaLat = radiusKm / EarthRadiusKm * (180 / Math.PI);
+            double deltaLng = radiusKm / (EarthRadiusKm * Math.Cos(lat * Math.PI / 180)) * (180 / Math.PI);
+
+            decimal minLat = (decimal)(lat - deltaLat);
+            decimal maxLat = (decimal)(lat + deltaLat);
+            decimal minLng = (decimal)(lng - deltaLng);
+            decimal maxLng = (decimal)(lng + deltaLng);
+
+            var apps = await db.app
+                .Where(a => a.latitude.HasValue && a.longitude.HasValue &&
+                            a.latitude.Value >= minLat && a.latitude.Value <= maxLat &&
+                            a.longitude.Value >= minLng && a.longitude.Value <= maxLng)
+                .Select(a => new
+                {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role,
+                    a.rating,
+                    a.latitude,
+                    a.longitude,
+                    a.active,
+                    a.language_id
+                })
+                .ToListAsync();
+
+            return Ok(apps);
+        }
+
         // PUT: api/apps/{id}
         [HttpPut]
         [Route("api/apps/{id}")]
@@ -113,45 +152,6 @@ namespace WebApplicationTgtNotes.Controllers
             }
 
             return Ok(new { status = "ok", message = "L'usuari s'ha actualitzat correctament" });
-        }
-
-        // GET: api/apps/location?lat=41.3851&lng=2.1734&radiusKm=10
-        [HttpGet]
-        [Route("api/apps/location")]
-        [ResponseType(typeof(IEnumerable<object>))]
-        public async Task<IHttpActionResult> GetAppsByLocation(double lat, double lng, double radiusKm)
-        {
-            db.Configuration.LazyLoadingEnabled = false;
-
-            const double EarthRadiusKm = 6371.0;
-            double deltaLat = radiusKm / EarthRadiusKm * (180 / Math.PI);
-            double deltaLng = radiusKm / (EarthRadiusKm * Math.Cos(lat * Math.PI / 180)) * (180 / Math.PI);
-
-            decimal minLat = (decimal)(lat - deltaLat);
-            decimal maxLat = (decimal)(lat + deltaLat);
-            decimal minLng = (decimal)(lng - deltaLng);
-            decimal maxLng = (decimal)(lng + deltaLng);
-
-            var apps = await db.app
-                .Where(a => a.latitude.HasValue && a.longitude.HasValue &&
-                            a.latitude.Value >= minLat && a.latitude.Value <= maxLat &&
-                            a.longitude.Value >= minLng && a.longitude.Value <= maxLng)
-                .Select(a => new
-                {
-                    a.id,
-                    a.name,
-                    a.mail,
-                    a.password,
-                    a.role,
-                    a.rating,
-                    a.latitude,
-                    a.longitude,
-                    a.active,
-                    a.language_id
-                })
-                .ToListAsync();
-
-            return Ok(apps);
         }
 
         // POST: api/apps/login
