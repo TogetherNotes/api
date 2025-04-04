@@ -62,6 +62,33 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(chat);
         }
 
+        // GET: api/chats/user/{id}
+        [HttpGet]
+        [Route("api/chats/user/{id:int}")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetChatsByUser(int id)
+        {
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var chats = await db.chats
+                .Where(c => c.user1_id == id || c.user2_id == id)
+                .Select(c => new
+                {
+                    c.id,
+                    c.date,
+                    c.user1_id,
+                    c.user2_id
+                })
+                .ToListAsync();
+
+            if (chats == null || !chats.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(chats);
+        }
+
         // PUT: api/chats/{id}
         [HttpPut]
         [Route("api/chats/{id}")]
