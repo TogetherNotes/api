@@ -161,7 +161,18 @@ namespace WebApplicationTgtNotes.Controllers
         {
             var app = await db.app
                 .Where(a => a.mail == creds.mail && a.password == creds.password && a.active == true)
-                .Select(a => new { a.id, a.name, a.role, a.active })
+                .Select(a => new {
+                    a.id,
+                    a.name,
+                    a.mail,
+                    a.password,
+                    a.role,
+                    a.rating,
+                    a.latitude,
+                    a.longitude,
+                    a.active,
+                    a.language_id
+                })
                 .FirstOrDefaultAsync();
 
             if (app == null) return NotFound();
