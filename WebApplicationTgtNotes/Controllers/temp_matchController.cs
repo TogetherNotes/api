@@ -66,6 +66,34 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(tempMatch);
         }
 
+        [HttpGet]
+        [Route("api/temp_match/pending/{userId:int}")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetPendingMatches(int userId)
+        {
+            // Desactivar la carga diferida
+            db.Configuration.LazyLoadingEnabled = false;
+
+            // Consulta para obtener las coincidencias pendientes
+            var pendingMatches = await db.temp_match
+                .Where(tm =>
+                    (tm.artist_id == userId && tm.space_like == true && tm.artist_like == false && tm.status == "pending") ||
+                    (tm.space_id == userId && tm.artist_like == true && tm.space_like == false && tm.status == "pending")
+                )
+                .Select(tm => new
+                {
+                    OtherUserId = tm.artist_id == userId ? tm.space_id : tm.artist_id,
+                    tm.request_date
+                })
+                .ToListAsync();
+
+            if (pendingMatches == null || !pendingMatches.Any())
+            {
+                return NotFound(); // No se encontraron coincidencias pendientes
+            }
+
+            return Ok(pendingMatches);
+        }
         // PUT: api/temp_match/{artist_id}/{space_id}
         [HttpPut]
         [Route("api/temp_match/{artist_id:int}/{space_id:int}")]
