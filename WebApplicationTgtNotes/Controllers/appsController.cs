@@ -74,7 +74,10 @@ namespace WebApplicationTgtNotes.Controllers
         [HttpGet]
         [Route("api/apps/location")]
         [ResponseType(typeof(IEnumerable<object>))]
-        public async Task<IHttpActionResult> GetAppsByLocation(double lat, double lng, double radiusKm)
+        public async Task<IHttpActionResult> GetAppsByLocation(
+            [FromUri] double lat,
+            [FromUri] double lng,
+            [FromUri] double radiusKm)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
@@ -157,10 +160,10 @@ namespace WebApplicationTgtNotes.Controllers
         // POST: api/apps/login
         [HttpPost]
         [Route("api/apps/login")]
-        public async Task<IHttpActionResult> Login(app creds)
+        public async Task<IHttpActionResult> Login([FromUri] string mail, [FromUri] string password)
         {
             var app = await db.app
-                .Where(a => a.mail == creds.mail && a.password == creds.password && a.active == true)
+                .Where(a => a.mail == mail && a.password == password && a.active == true)
                 .Select(a => new {
                     a.id,
                     a.name,

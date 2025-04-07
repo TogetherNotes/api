@@ -66,6 +66,36 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(tempMatch);
         }
 
+        // GET: api/temp_match/pending/{userId}
+        [HttpGet]
+        [Route("api/temp_match/pending/{userId:int}")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetPendingMatches(int userId)
+        {
+            // Disable lazy loading to avoid circular reference issues
+            db.Configuration.LazyLoadingEnabled = false;
+
+            // Query to find pending matches where only one side has liked
+            var pendingMatches = await db.temp_match
+                .Where(tm =>
+                    (tm.artist_id == userId && tm.space_like == true && tm.artist_like == false && tm.status == "pending") ||
+                    (tm.space_id == userId && tm.artist_like == true && tm.space_like == false && tm.status == "pending")
+                )
+                .Select(tm => new
+                {
+                    OtherUserId = tm.artist_id == userId ? tm.space_id : tm.artist_id,
+                    tm.request_date
+                })
+                .ToListAsync();
+
+            if (pendingMatches == null || !pendingMatches.Any())
+            {
+                return NotFound(); // No pending matches found
+            }
+
+            return Ok(pendingMatches);
+        }
+
         // PUT: api/temp_match/{artist_id}/{space_id}
         [HttpPut]
         [Route("api/temp_match/{artist_id:int}/{space_id:int}")]
