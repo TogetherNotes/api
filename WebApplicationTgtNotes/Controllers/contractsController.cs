@@ -67,6 +67,38 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(contract);
         }
 
+        // GET: api/contracts/by-date?userId={userId}&date={date}
+        [HttpGet]
+        [Route("api/contracts/by-date")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetContractsByDate([FromUri] int userId, [FromUri] DateTime date)
+        {
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var contracts = await db.contracts
+                .Where(c =>
+                    (c.artist_id == userId || c.space_id == userId) &&
+                    DbFunctions.TruncateTime(c.init_hour) == date.Date
+                )
+                .Select(c => new
+                {
+                    c.artist_id,
+                    c.space_id,
+                    c.meet_type,
+                    c.status,
+                    c.init_hour,
+                    c.end_hour
+                })
+                .ToListAsync();
+
+            if (contracts == null || !contracts.Any())
+            {
+                return NotFound(); // No contracts found for this user on the given date
+            }
+
+            return Ok(contracts);
+        }
+
         // PUT: api/contracts/{artist_id}/{space_id}
         [HttpPut]
         [Route("api/contracts/{artist_id:int}/{space_id:int}")]
