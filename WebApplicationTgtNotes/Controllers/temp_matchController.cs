@@ -66,11 +66,11 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(tempMatch);
         }
 
-        // GET: api/temp_match/pending/{userId}
+        // GET: api/temp_match/pending?userId={userId}
         [HttpGet]
-        [Route("api/temp_match/pending/{userId:int}")]
+        [Route("api/temp_match/pending")]
         [ResponseType(typeof(IEnumerable<object>))]
-        public async Task<IHttpActionResult> GetPendingMatches(int userId)
+        public async Task<IHttpActionResult> GetPendingMatches([FromUri] int userId)
         {
             // Disable lazy loading to avoid circular reference issues
             db.Configuration.LazyLoadingEnabled = false;
