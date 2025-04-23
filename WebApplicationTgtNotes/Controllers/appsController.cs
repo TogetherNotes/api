@@ -75,9 +75,10 @@ namespace WebApplicationTgtNotes.Controllers
         [Route("api/apps/location")]
         [ResponseType(typeof(IEnumerable<object>))]
         public async Task<IHttpActionResult> GetAppsByLocation(
-            [FromUri] double lat,
-            [FromUri] double lng,
-            [FromUri] double radiusKm)
+         [FromUri] double lat,
+         [FromUri] double lng,
+         [FromUri] double radiusKm,
+         [FromUri] int userId)
         {
             db.Configuration.LazyLoadingEnabled = false;
 
@@ -90,10 +91,23 @@ namespace WebApplicationTgtNotes.Controllers
             decimal minLng = (decimal)(lng - deltaLng);
             decimal maxLng = (decimal)(lng + deltaLng);
 
-            var apps = await db.app
+            var appsInLocation = await db.app
                 .Where(a => a.latitude.HasValue && a.longitude.HasValue &&
                             a.latitude.Value >= minLat && a.latitude.Value <= maxLat &&
                             a.longitude.Value >= minLng && a.longitude.Value <= maxLng)
+                .ToListAsync();
+
+            var existingMatches = await db.temp_match
+                .Where(tm => tm.artist_id == userId || tm.space_id == userId)
+                .ToListAsync();
+
+            var excludedUserIds = existingMatches
+                .SelectMany(tm => new[] { tm.artist_id, tm.space_id })
+                .Distinct()
+                .ToHashSet();
+
+            var filteredApps = appsInLocation
+                .Where(a => !excludedUserIds.Contains(a.id))
                 .Select(a => new
                 {
                     a.id,
@@ -107,10 +121,52 @@ namespace WebApplicationTgtNotes.Controllers
                     a.active,
                     a.language_id
                 })
-                .ToListAsync();
+                .ToList();
 
-            return Ok(apps);
+            return Ok(filteredApps);
         }
+
+        // GET: api/apps/location?lat=41.3851&lng=2.1734&radiusKm=10
+        //[HttpGet]
+        //[Route("api/apps/location")]
+        //[ResponseType(typeof(IEnumerable<object>))]
+        //public async Task<IHttpActionResult> GetAppsByLocation(
+        //    [FromUri] double lat,
+        //    [FromUri] double lng,
+        //    [FromUri] double radiusKm)
+        //{
+        //    db.Configuration.LazyLoadingEnabled = false;
+
+        //    const double EarthRadiusKm = 6371.0;
+        //    double deltaLat = radiusKm / EarthRadiusKm * (180 / Math.PI);
+        //    double deltaLng = radiusKm / (EarthRadiusKm * Math.Cos(lat * Math.PI / 180)) * (180 / Math.PI);
+
+        //    decimal minLat = (decimal)(lat - deltaLat);
+        //    decimal maxLat = (decimal)(lat + deltaLat);
+        //    decimal minLng = (decimal)(lng - deltaLng);
+        //    decimal maxLng = (decimal)(lng + deltaLng);
+
+        //    var apps = await db.app
+        //        .Where(a => a.latitude.HasValue && a.longitude.HasValue &&
+        //                    a.latitude.Value >= minLat && a.latitude.Value <= maxLat &&
+        //                    a.longitude.Value >= minLng && a.longitude.Value <= maxLng)
+        //        .Select(a => new
+        //        {
+        //            a.id,
+        //            a.name,
+        //            a.mail,
+        //            a.password,
+        //            a.role,
+        //            a.rating,
+        //            a.latitude,
+        //            a.longitude,
+        //            a.active,
+        //            a.language_id
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(apps);
+        //}
 
         // PUT: api/apps/{id}
         [HttpPut]
@@ -164,7 +220,8 @@ namespace WebApplicationTgtNotes.Controllers
         {
             var app = await db.app
                 .Where(a => a.mail == mail && a.password == password && a.active == true)
-                .Select(a => new {
+                .Select(a => new
+                {
                     a.id,
                     a.name,
                     a.mail,
