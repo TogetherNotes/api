@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using WebApplicationTgtNotes.Models;
@@ -14,53 +18,6 @@ namespace WebApplicationTgtNotes.Controllers
     {
         private TgtNotesEntities db = new TgtNotesEntities();
 
-        // GET: api/files
-        [HttpGet]
-        [Route("api/files")]
-        [ResponseType(typeof(IEnumerable<object>))]
-        public async Task<IHttpActionResult> Getfiles()
-        {
-            db.Configuration.LazyLoadingEnabled = false;
-
-            var files = await db.files
-                .Select(f => new
-                {
-                    f.id,
-                    f.name,
-                    f.type,
-                    f.date
-                })
-                .ToListAsync();
-
-            return Ok(files);
-        }
-
-        // GET: api/files/{id}
-        [HttpGet]
-        [Route("api/files/{id}")]
-        [ResponseType(typeof(object))]
-        public async Task<IHttpActionResult> Getfiles(int id)
-        {
-            db.Configuration.LazyLoadingEnabled = false;
-
-            var file = await db.files
-                .Where(f => f.id == id)
-                .Select(f => new
-                {
-                    f.id,
-                    f.name,
-                    f.type,
-                    f.date
-                })
-                .FirstOrDefaultAsync();
-
-            if (file == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(file);
-        }
 
         // GET: api/files/download/{app_id}/{type}
         [HttpGet]
