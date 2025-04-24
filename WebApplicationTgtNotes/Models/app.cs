@@ -19,8 +19,6 @@ namespace WebApplicationTgtNotes.Models
         {
             this.chats = new HashSet<chats>();
             this.chats1 = new HashSet<chats>();
-            this.contracts = new HashSet<contracts>();
-            this.contracts1 = new HashSet<contracts>();
             this.files = new HashSet<files>();
             this.incidences = new HashSet<incidences>();
             this.matches = new HashSet<matches>();
@@ -30,6 +28,8 @@ namespace WebApplicationTgtNotes.Models
             this.rating2 = new HashSet<rating>();
             this.temp_match = new HashSet<temp_match>();
             this.temp_match1 = new HashSet<temp_match>();
+            this.contracts = new HashSet<contracts>();
+            this.contracts1 = new HashSet<contracts>();
         }
     
         public int id { get; set; }
@@ -50,10 +50,6 @@ namespace WebApplicationTgtNotes.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<chats> chats1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<contracts> contracts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<contracts> contracts1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<files> files { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<incidences> incidences { get; set; }
@@ -72,5 +68,9 @@ namespace WebApplicationTgtNotes.Models
         public virtual ICollection<temp_match> temp_match { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<temp_match> temp_match1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<contracts> contracts { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<contracts> contracts1 { get; set; }
     }
 }

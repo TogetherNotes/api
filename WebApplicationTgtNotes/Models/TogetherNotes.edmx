@@ -78,6 +78,7 @@
           <Property Name="status" Type="nvarchar" MaxLength="20" />
           <Property Name="init_hour" Type="datetimeoffset" Precision="7" Nullable="false" />
           <Property Name="end_hour" Type="datetimeoffset" Precision="7" Nullable="false" />
+          <Property Name="title" Type="nvarchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="files">
           <Key>
@@ -567,7 +568,6 @@
           <EntitySet Name="artist_genres" EntityType="TgtNotesModel.artist_genres" />
           <EntitySet Name="artists" EntityType="TgtNotesModel.artists" />
           <EntitySet Name="chats" EntityType="TgtNotesModel.chats" />
-          <EntitySet Name="contracts" EntityType="TgtNotesModel.contracts" />
           <EntitySet Name="files" EntityType="TgtNotesModel.files" />
           <EntitySet Name="genres" EntityType="TgtNotesModel.genres" />
           <EntitySet Name="incidences" EntityType="TgtNotesModel.incidences" />
@@ -606,14 +606,6 @@
           <AssociationSet Name="fk_chats_user2" Association="TgtNotesModel.fk_chats_user2">
             <End Role="app" EntitySet="app" />
             <End Role="chats" EntitySet="chats" />
-          </AssociationSet>
-          <AssociationSet Name="fk_contracts_artist" Association="TgtNotesModel.fk_contracts_artist">
-            <End Role="app" EntitySet="app" />
-            <End Role="contracts" EntitySet="contracts" />
-          </AssociationSet>
-          <AssociationSet Name="fk_contracts_space" Association="TgtNotesModel.fk_contracts_space">
-            <End Role="app" EntitySet="app" />
-            <End Role="contracts" EntitySet="contracts" />
           </AssociationSet>
           <AssociationSet Name="fk_file_app" Association="TgtNotesModel.fk_file_app">
             <End Role="app" EntitySet="app" />
@@ -667,6 +659,15 @@
             <End Role="chats" EntitySet="chats" />
             <End Role="messages" EntitySet="messages" />
           </AssociationSet>
+          <EntitySet Name="contracts" EntityType="TgtNotesModel.contracts" />
+          <AssociationSet Name="fk_contracts_artist" Association="TgtNotesModel.fk_contracts_artist">
+            <End Role="app" EntitySet="app" />
+            <End Role="contracts" EntitySet="contracts" />
+          </AssociationSet>
+          <AssociationSet Name="fk_contracts_space" Association="TgtNotesModel.fk_contracts_space">
+            <End Role="app" EntitySet="app" />
+            <End Role="contracts" EntitySet="contracts" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="activity">
           <Key>
@@ -711,8 +712,6 @@
           <NavigationProperty Name="artists" Relationship="TgtNotesModel.fk_artists_app" FromRole="app" ToRole="artists" />
           <NavigationProperty Name="chats" Relationship="TgtNotesModel.fk_chats_user1" FromRole="app" ToRole="chats" />
           <NavigationProperty Name="chats1" Relationship="TgtNotesModel.fk_chats_user2" FromRole="app" ToRole="chats" />
-          <NavigationProperty Name="contracts" Relationship="TgtNotesModel.fk_contracts_artist" FromRole="app" ToRole="contracts" />
-          <NavigationProperty Name="contracts1" Relationship="TgtNotesModel.fk_contracts_space" FromRole="app" ToRole="contracts" />
           <NavigationProperty Name="files" Relationship="TgtNotesModel.fk_file_app" FromRole="app" ToRole="files" />
           <NavigationProperty Name="incidences" Relationship="TgtNotesModel.fk_incidences_app" FromRole="app" ToRole="incidences" />
           <NavigationProperty Name="matches" Relationship="TgtNotesModel.fk_matches_artist" FromRole="app" ToRole="matches" />
@@ -723,6 +722,8 @@
           <NavigationProperty Name="spaces" Relationship="TgtNotesModel.fk_spaces_app" FromRole="app" ToRole="spaces" />
           <NavigationProperty Name="temp_match" Relationship="TgtNotesModel.fk_temp_match_artist" FromRole="app" ToRole="temp_match" />
           <NavigationProperty Name="temp_match1" Relationship="TgtNotesModel.fk_temp_match_space" FromRole="app" ToRole="temp_match" />
+          <NavigationProperty Name="contracts" Relationship="TgtNotesModel.fk_contracts_artist" FromRole="app" ToRole="contracts" />
+          <NavigationProperty Name="contracts1" Relationship="TgtNotesModel.fk_contracts_space" FromRole="app" ToRole="contracts" />
         </EntityType>
         <EntityType Name="artist_genres">
           <Key>
@@ -754,22 +755,6 @@
           <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_chats_user1" FromRole="chats" ToRole="app" />
           <NavigationProperty Name="app1" Relationship="TgtNotesModel.fk_chats_user2" FromRole="chats" ToRole="app" />
           <NavigationProperty Name="messages" Relationship="TgtNotesModel.fk_messages_chat" FromRole="chats" ToRole="messages" />
-        </EntityType>
-        <EntityType Name="contracts">
-          <Key>
-            <PropertyRef Name="artist_id" />
-            <PropertyRef Name="space_id" />
-            <PropertyRef Name="init_hour" />
-            <PropertyRef Name="end_hour" />
-          </Key>
-          <Property Name="artist_id" Type="Int32" Nullable="false" />
-          <Property Name="space_id" Type="Int32" Nullable="false" />
-          <Property Name="meet_type" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="init_hour" Type="DateTimeOffset" Nullable="false" Precision="7" />
-          <Property Name="end_hour" Type="DateTimeOffset" Nullable="false" Precision="7" />
-          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_contracts_artist" FromRole="contracts" ToRole="app" />
-          <NavigationProperty Name="app1" Relationship="TgtNotesModel.fk_contracts_space" FromRole="contracts" ToRole="app" />
         </EntityType>
         <EntityType Name="files">
           <Key>
@@ -973,30 +958,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_contracts_artist">
-          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
-          <End Type="TgtNotesModel.contracts" Role="contracts" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="app">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="contracts">
-              <PropertyRef Name="artist_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_contracts_space">
-          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
-          <End Type="TgtNotesModel.contracts" Role="contracts" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="app">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="contracts">
-              <PropertyRef Name="space_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="fk_file_app">
           <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
           <End Type="TgtNotesModel.files" Role="files" Multiplicity="*" />
@@ -1155,6 +1116,47 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="contracts">
+          <Key>
+            <PropertyRef Name="artist_id" />
+            <PropertyRef Name="space_id" />
+            <PropertyRef Name="init_hour" />
+            <PropertyRef Name="end_hour" />
+          </Key>
+          <Property Name="artist_id" Type="Int32" Nullable="false" />
+          <Property Name="space_id" Type="Int32" Nullable="false" />
+          <Property Name="meet_type" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="init_hour" Type="DateTimeOffset" Nullable="false" Precision="7" />
+          <Property Name="end_hour" Type="DateTimeOffset" Nullable="false" Precision="7" />
+          <Property Name="title" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="app" Relationship="TgtNotesModel.fk_contracts_artist" FromRole="contracts" ToRole="app" />
+          <NavigationProperty Name="app1" Relationship="TgtNotesModel.fk_contracts_space" FromRole="contracts" ToRole="app" />
+        </EntityType>
+        <Association Name="fk_contracts_artist">
+          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
+          <End Type="TgtNotesModel.contracts" Role="contracts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="contracts">
+              <PropertyRef Name="artist_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_contracts_space">
+          <End Type="TgtNotesModel.app" Role="app" Multiplicity="1" />
+          <End Type="TgtNotesModel.contracts" Role="contracts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="app">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="contracts">
+              <PropertyRef Name="space_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1223,18 +1225,6 @@
                 <ScalarProperty Name="user1_id" ColumnName="user1_id" />
                 <ScalarProperty Name="date" ColumnName="date" />
                 <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="contracts">
-            <EntityTypeMapping TypeName="TgtNotesModel.contracts">
-              <MappingFragment StoreEntitySet="contracts">
-                <ScalarProperty Name="end_hour" ColumnName="end_hour" />
-                <ScalarProperty Name="init_hour" ColumnName="init_hour" />
-                <ScalarProperty Name="status" ColumnName="status" />
-                <ScalarProperty Name="meet_type" ColumnName="meet_type" />
-                <ScalarProperty Name="space_id" ColumnName="space_id" />
-                <ScalarProperty Name="artist_id" ColumnName="artist_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1340,6 +1330,19 @@
                 <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="space_like" ColumnName="space_like" />
                 <ScalarProperty Name="artist_like" ColumnName="artist_like" />
+                <ScalarProperty Name="space_id" ColumnName="space_id" />
+                <ScalarProperty Name="artist_id" ColumnName="artist_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="contracts">
+            <EntityTypeMapping TypeName="TgtNotesModel.contracts">
+              <MappingFragment StoreEntitySet="contracts">
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="end_hour" ColumnName="end_hour" />
+                <ScalarProperty Name="init_hour" ColumnName="init_hour" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="meet_type" ColumnName="meet_type" />
                 <ScalarProperty Name="space_id" ColumnName="space_id" />
                 <ScalarProperty Name="artist_id" ColumnName="artist_id" />
               </MappingFragment>

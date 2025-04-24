@@ -20,6 +20,7 @@ namespace WebApplicationTgtNotes.Models
         public string status { get; set; }
         public System.DateTimeOffset init_hour { get; set; }
         public System.DateTimeOffset end_hour { get; set; }
+        public string title { get; set; }
     
         public virtual app app { get; set; }
         public virtual app app1 { get; set; }

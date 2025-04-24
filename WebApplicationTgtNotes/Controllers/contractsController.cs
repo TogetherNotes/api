@@ -31,7 +31,8 @@ namespace WebApplicationTgtNotes.Controllers
                     c.meet_type,
                     c.status,
                     c.init_hour,
-                    c.end_hour
+                    c.end_hour,
+                    c.title
                 })
                 .ToListAsync();
 
@@ -55,7 +56,8 @@ namespace WebApplicationTgtNotes.Controllers
                     c.meet_type,
                     c.status,
                     c.init_hour,
-                    c.end_hour
+                    c.end_hour,
+                    c.title
                 })
                 .FirstOrDefaultAsync();
 
@@ -67,6 +69,7 @@ namespace WebApplicationTgtNotes.Controllers
             return Ok(contract);
         }
 
+        /*
         // GET: api/contracts/by-date?userId={userId}&date={date}
         [HttpGet]
         [Route("api/contracts/by-date")]
@@ -87,7 +90,8 @@ namespace WebApplicationTgtNotes.Controllers
                     c.meet_type,
                     c.status,
                     c.init_hour,
-                    c.end_hour
+                    c.end_hour,
+                    c.title
                 })
                 .ToListAsync();
 
@@ -98,7 +102,47 @@ namespace WebApplicationTgtNotes.Controllers
 
             return Ok(contracts);
         }
+        */
 
+        // GET: api/contracts/by-date?userId={userId}&date={date}
+        [HttpGet]
+        [Route("api/contracts/by-date")]
+        [ResponseType(typeof(IEnumerable<object>))]
+        public async Task<IHttpActionResult> GetContractsByDate([FromUri] int userId, [FromUri] DateTime date)
+        {
+            // Log de los parámetros recibidos
+            System.Diagnostics.Debug.WriteLine($"userId: {userId}, date: {date}");
+
+            // Calcular el rango de fechas
+            DateTime startDate = date.Date; // Inicio del día (medianoche)
+            DateTime endDate = startDate.AddDays(1); // Inicio del día siguiente
+
+            db.Configuration.LazyLoadingEnabled = false;
+
+            var contracts = await db.contracts
+                .Where(c =>
+                    (c.artist_id == userId || c.space_id == userId) &&
+                    c.init_hour >= startDate && c.init_hour < endDate
+                )
+                .Select(c => new
+                {
+                    c.artist_id,
+                    c.space_id,
+                    c.meet_type,
+                    c.status,
+                    c.init_hour,
+                    c.end_hour,
+                    c.title
+                })
+                .ToListAsync();
+
+            if (contracts == null || !contracts.Any())
+            {
+                return NotFound(); // No contracts found for this user on the given date
+            }
+
+            return Ok(contracts);
+        }
         // PUT: api/contracts/{artist_id}/{space_id}
         [HttpPut]
         [Route("api/contracts/{artist_id:int}/{space_id:int}")]
@@ -113,7 +157,7 @@ namespace WebApplicationTgtNotes.Controllers
 
             var existing = await db.contracts
                 .FirstOrDefaultAsync(c => c.artist_id == artist_id && c.space_id == space_id &&
-                                          c.init_hour == contractData.init_hour && c.end_hour == contractData.end_hour);
+                                          c.init_hour == contractData.init_hour && c.end_hour == contractData.end_hour && contractData.title == c.title);
 
             if (existing == null)
                 return NotFound();
@@ -141,7 +185,7 @@ namespace WebApplicationTgtNotes.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var exists = await db.contracts.FindAsync(contract.artist_id, contract.space_id, contract.init_hour, contract.end_hour);
+            var exists = await db.contracts.FindAsync(contract.artist_id, contract.space_id, contract.init_hour, contract.end_hour, contract.title);
             if (exists != null)
                 return Conflict();
 
@@ -153,7 +197,8 @@ namespace WebApplicationTgtNotes.Controllers
                 artist_id = contract.artist_id,
                 space_id = contract.space_id,
                 init_hour = contract.init_hour,
-                end_hour = contract.end_hour
+                end_hour = contract.end_hour,
+                title = contract.title
             }, contract);
         }
 
@@ -161,9 +206,9 @@ namespace WebApplicationTgtNotes.Controllers
         [HttpDelete]
         [Route("api/contracts/{artist_id:int}/{space_id:int}/{init_hour}/{end_hour}")]
         [ResponseType(typeof(contracts))]
-        public async Task<IHttpActionResult> Deletecontracts(int artist_id, int space_id, DateTimeOffset init_hour, DateTimeOffset end_hour)
+        public async Task<IHttpActionResult> Deletecontracts(int artist_id, int space_id, DateTimeOffset init_hour, DateTimeOffset end_hour, string title)
         {
-            var contract = await db.contracts.FindAsync(artist_id, space_id, init_hour, end_hour);
+            var contract = await db.contracts.FindAsync(artist_id, space_id, init_hour, end_hour, title);
             if (contract == null)
                 return NotFound();
 

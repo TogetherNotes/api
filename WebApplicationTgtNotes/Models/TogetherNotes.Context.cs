@@ -31,7 +31,6 @@ namespace WebApplicationTgtNotes.Models
         public virtual DbSet<artist_genres> artist_genres { get; set; }
         public virtual DbSet<artists> artists { get; set; }
         public virtual DbSet<chats> chats { get; set; }
-        public virtual DbSet<contracts> contracts { get; set; }
         public virtual DbSet<files> files { get; set; }
         public virtual DbSet<genres> genres { get; set; }
         public virtual DbSet<incidences> incidences { get; set; }
@@ -43,5 +42,6 @@ namespace WebApplicationTgtNotes.Models
         public virtual DbSet<roles> roles { get; set; }
         public virtual DbSet<spaces> spaces { get; set; }
         public virtual DbSet<temp_match> temp_match { get; set; }
+        public virtual DbSet<contracts> contracts { get; set; }
     }
 }
